@@ -6,14 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   Alert,
   Dimensions,
   ActivityIndicator,
   Animated,
 } from 'react-native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import LinearGradient from 'react-native-linear-gradient';
 import {useAuth} from '../context/AuthContext';
 
@@ -101,13 +99,12 @@ const LoginScreen: React.FC = () => {
 
   return (
     <LinearGradient colors={['#FFEEF5', '#FFE8E8']} style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.flex}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          bounces={false}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        bounces={false}
+        enableOnAndroid={true}
+        extraScrollHeight={20}>
           {/* Banner Section */}
           <Animated.View
             style={[
@@ -261,16 +258,12 @@ const LoginScreen: React.FC = () => {
               <Text style={styles.forgotPasswordText}>忘記登入名稱或密碼?</Text>
             </TouchableOpacity>
           </Animated.View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
   container: {
     flex: 1,
   },
@@ -281,6 +274,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    paddingBottom: 20,
   },
 
   // Banner
