@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(curl:*)",
+      "Bash(bundle exec pod install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(pod install)",
+      "Bash(npm info:*)",
+      "Bash(python3:*)",
+      "WebFetch(domain:docs.swmansion.com)",
+      "Bash(node node_modules/react-native-reanimated/scripts/validate-react-native-version.js:*)",
+      "Bash(echo:*)",
+      "Bash(npm uninstall:*)"
+    ]
+  }
+}
