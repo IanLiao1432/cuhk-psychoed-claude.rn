@@ -6,17 +6,16 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  Alert,
-  Dimensions,
   ActivityIndicator,
   Animated,
+  Keyboard,
 } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import LinearGradient from 'react-native-linear-gradient';
 import {useAuth} from '../context/AuthContext';
 import {useWording} from '../context/WordingContext';
-
-const {width: SCREEN_WIDTH} = Dimensions.get('window');
+import ForgetPasswordSheet from '../components/ForgetPasswordSheet';
+import Banner from '../components/Banner';
 
 const LoginScreen: React.FC = () => {
   const {signIn, state} = useAuth();
@@ -24,6 +23,8 @@ const LoginScreen: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [showForgetSheet, setShowForgetSheet] = useState(false);
   const passwordRef = useRef<TextInput>(null);
 
   // Animations
@@ -74,24 +75,23 @@ const LoginScreen: React.FC = () => {
       return;
     }
     setIsSubmitting(true);
+    setLoginError(null);
     try {
       await signIn({username: username.trim(), password});
     } catch (error: any) {
       const message =
         error?.response?.status === 401
-          ? t('loginErrorMessage', '登入名稱或密碼不正確')
-          : '登入失敗，請稍後再試';
-      Alert.alert('登入失敗', message);
+          ? t('loginErrorMessage', '登入名稱或密碼錯誤，請重試')
+          : t('loginErrorGeneric', '登入失敗，請稍後再試');
+      setLoginError(message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleForgotPassword = () => {
-    Alert.alert(
-      t('forgetLoginInfoTitle', '忘記登入名稱或密碼？'),
-      t('forgetLoginInfoDesc', '請聯繫管理員重置您的帳戶。'),
-    );
+    Keyboard.dismiss();
+    setShowForgetSheet(true);
   };
 
   if (state.isLoading && !isSubmitting) {
@@ -111,61 +111,7 @@ const LoginScreen: React.FC = () => {
         enableOnAndroid={true}
         extraScrollHeight={20}>
           {/* Banner Section */}
-          <Animated.View
-            style={[
-              styles.banner,
-              {
-                opacity: bannerOpacity,
-                transform: [{translateY: bannerTranslateY}],
-              },
-            ]}>
-            <Image
-              source={require('../assets/images/banner_bg.png')}
-              style={styles.bannerBg}
-              resizeMode="cover"
-            />
-            <Image
-              source={require('../assets/images/dancer.png')}
-              style={styles.dancer}
-              resizeMode="contain"
-            />
-            <Image
-              source={require('../assets/images/ribbon.png')}
-              style={styles.ribbon}
-              resizeMode="contain"
-            />
-            <Image
-              source={require('../assets/images/logo.png')}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-            <View style={styles.titleContainer}>
-              <LinearGradient
-                colors={[
-                  'rgba(192, 220, 255, 0.5)',
-                  'rgba(242, 175, 255, 0.5)',
-                  'rgba(255, 171, 168, 0.5)',
-                ]}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 0}}
-                style={styles.titleBadge}>
-                <Text style={styles.titleText}>
-                  {t('homeLogoDesc1', '粉紅絲帶臨床決策輔助工具(香港版)')}
-                </Text>
-              </LinearGradient>
-              <LinearGradient
-                colors={[
-                  'rgba(192, 220, 255, 0.5)',
-                  'rgba(242, 175, 255, 0.5)',
-                  'rgba(255, 171, 168, 0.5)',
-                ]}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 0}}
-                style={styles.titleBadge}>
-                <Text style={styles.subtitleText}>{t('homeLogoDesc2', 'BCT Aid HK')}</Text>
-              </LinearGradient>
-            </View>
-          </Animated.View>
+          <Banner animatedValue={{opacity: bannerOpacity, translateY: bannerTranslateY}} />
 
           {/* Login Form Card */}
           <Animated.View
@@ -177,9 +123,9 @@ const LoginScreen: React.FC = () => {
               },
             ]}>
             <View style={styles.card}>
-              <View style={styles.inputContainer}>
+              <View style={[styles.inputContainer, loginError && styles.inputContainerError]}>
                 {/* Username Field */}
-                <View style={[styles.inputField, styles.inputFieldBorder]}>
+                <View style={[styles.inputField, styles.inputFieldBorder, loginError && styles.inputFieldBorderError]}>
                   <Image
                     source={require('../assets/images/ic_profile.png')}
                     style={styles.inputIcon}
@@ -192,7 +138,10 @@ const LoginScreen: React.FC = () => {
                       placeholder={t('loginFillUsername', '輸入登入名稱')}
                       placeholderTextColor="#9E619B"
                       value={username}
-                      onChangeText={setUsername}
+                      onChangeText={text => {
+                        setUsername(text);
+                        if (loginError) {setLoginError(null);}
+                      }}
                       autoCapitalize="none"
                       autoCorrect={false}
                       returnKeyType="next"
@@ -216,7 +165,10 @@ const LoginScreen: React.FC = () => {
                       placeholder={t('loginFillPassword', '輸入密碼')}
                       placeholderTextColor="#9E619B"
                       value={password}
-                      onChangeText={setPassword}
+                      onChangeText={text => {
+                        setPassword(text);
+                        if (loginError) {setLoginError(null);}
+                      }}
                       secureTextEntry
                       returnKeyType="done"
                       onSubmitEditing={handleLogin}
@@ -224,6 +176,11 @@ const LoginScreen: React.FC = () => {
                   </View>
                 </View>
               </View>
+
+              {/* Error Message */}
+              {loginError && (
+                <Text style={styles.errorText}>{loginError}</Text>
+              )}
 
               {/* Login Button */}
               <TouchableOpacity
@@ -264,6 +221,10 @@ const LoginScreen: React.FC = () => {
             </TouchableOpacity>
           </Animated.View>
       </KeyboardAwareScrollView>
+      <ForgetPasswordSheet
+        visible={showForgetSheet}
+        onClose={() => setShowForgetSheet(false)}
+      />
     </LinearGradient>
   );
 };
@@ -280,67 +241,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingBottom: 20,
-  },
-
-  // Banner
-  banner: {
-    width: SCREEN_WIDTH,
-    height: 360,
-    overflow: 'hidden',
-  },
-  bannerBg: {
-    position: 'absolute',
-    width: SCREEN_WIDTH * 1.8,
-    height: 360,
-    left: -SCREEN_WIDTH * 0.4,
-    top: 0,
-  },
-  dancer: {
-    position: 'absolute',
-    width: 200,
-    height: 260,
-    right: -10,
-    top: 20,
-  },
-  ribbon: {
-    position: 'absolute',
-    width: 350,
-    height: 320,
-    left: 60,
-    top: -80,
-    transform: [{rotate: '45deg'}],
-    opacity: 0.6,
-  },
-  logo: {
-    position: 'absolute',
-    left: 24,
-    top: 93,
-    width: 190,
-    height: 117,
-  },
-  titleContainer: {
-    position: 'absolute',
-    left: 24,
-    bottom: 38,
-    gap: 2,
-  },
-  titleBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 41,
-    alignSelf: 'flex-start',
-  },
-  titleText: {
-    fontWeight: '700',
-    fontSize: 12,
-    lineHeight: 22,
-    color: '#6E1E6F',
-  },
-  subtitleText: {
-    fontWeight: '700',
-    fontSize: 11,
-    lineHeight: 22,
-    color: '#6E1E6F',
   },
 
   // Form
@@ -362,8 +262,13 @@ const styles = StyleSheet.create({
   inputContainer: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    marginBottom: 8,
     overflow: 'hidden',
+  },
+  inputContainerError: {
+    borderColor: '#FF0000',
   },
   inputField: {
     flexDirection: 'row',
@@ -376,6 +281,9 @@ const styles = StyleSheet.create({
   inputFieldBorder: {
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 231, 231, 0.75)',
+  },
+  inputFieldBorderError: {
+    borderBottomColor: '#FF0000',
   },
   inputIcon: {
     width: 24,
@@ -398,6 +306,13 @@ const styles = StyleSheet.create({
     color: '#6E1E6F',
     padding: 0,
     height: 24,
+  },
+  errorText: {
+    fontWeight: '700',
+    fontSize: 14,
+    color: '#FF0000',
+    textAlign: 'center',
+    marginBottom: 8,
   },
 
   // Button

@@ -44,14 +44,30 @@ apiClient.interceptors.request.use(
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log(
+      `[API] → ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`,
+      config.params ? {params: config.params} : '',
+      config.data ? {body: config.data} : '',
+    );
     return config;
   },
   error => Promise.reject(error),
 );
 
 apiClient.interceptors.response.use(
-  (response: AxiosResponse) => response,
+  (response: AxiosResponse) => {
+    console.log(
+      `[API] ← ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`,
+      {data: response.data},
+    );
+    return response;
+  },
   async (error: AxiosError) => {
+    console.log(
+      `[API] ✗ ${error.response?.status ?? 'NETWORK_ERROR'} ${error.config?.method?.toUpperCase()} ${error.config?.url}`,
+      error.response?.data ? {data: error.response.data} : {message: error.message},
+    );
+
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };

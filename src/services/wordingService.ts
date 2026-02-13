@@ -16,9 +16,11 @@ let cachedWordings: WordingKeys | null = null;
 export const wordingService = {
   async fetchWordings(): Promise<WordingKeys> {
     try {
+      console.log(`[API] → GET ${WORDING_URL}`);
       const {data} = await axios.get<WordingResponse>(WORDING_URL, {
         timeout: 10000,
       });
+      console.log('[API] ← 200 GET /wording', {locales: Object.keys(data)});
 
       // Find the default locale or fall back to 'zh-HK'
       const locale =
@@ -27,8 +29,8 @@ export const wordingService = {
 
       cachedWordings = keys;
       return keys;
-    } catch {
-      // Return cached wordings if available, otherwise empty
+    } catch (error: any) {
+      console.log('[API] ✗ GET /wording', {message: error.message});
       return cachedWordings ?? {};
     }
   },

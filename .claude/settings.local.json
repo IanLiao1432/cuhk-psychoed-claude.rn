@@ -12,7 +12,15 @@
       "Bash(node node_modules/react-native-reanimated/scripts/validate-react-native-version.js:*)",
       "Bash(echo:*)",
       "Bash(npm uninstall:*)",
-      "WebFetch(domain:www.relationapp.io)"
+      "WebFetch(domain:www.relationapp.io)",
+      "mcp__claude_ai_Figma__get_design_context",
+      "mcp__claude_ai_Figma__get_screenshot",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(node -e:*)",
+      "Bash(node:*)",
+      "Bash(wc:*)",
+      "Bash(npx svgo:*)"
     ]
   }
 }
