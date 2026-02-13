@@ -14,11 +14,13 @@ import {
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import LinearGradient from 'react-native-linear-gradient';
 import {useAuth} from '../context/AuthContext';
+import {useWording} from '../context/WordingContext';
 
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
 const LoginScreen: React.FC = () => {
   const {signIn, state} = useAuth();
+  const {t} = useWording();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,7 +79,7 @@ const LoginScreen: React.FC = () => {
     } catch (error: any) {
       const message =
         error?.response?.status === 401
-          ? '登入名稱或密碼不正確'
+          ? t('loginErrorMessage', '登入名稱或密碼不正確')
           : '登入失敗，請稍後再試';
       Alert.alert('登入失敗', message);
     } finally {
@@ -86,7 +88,10 @@ const LoginScreen: React.FC = () => {
   };
 
   const handleForgotPassword = () => {
-    Alert.alert('忘記登入名稱或密碼？', '請聯繫管理員重置您的帳戶。');
+    Alert.alert(
+      t('forgetLoginInfoTitle', '忘記登入名稱或密碼？'),
+      t('forgetLoginInfoDesc', '請聯繫管理員重置您的帳戶。'),
+    );
   };
 
   if (state.isLoading && !isSubmitting) {
@@ -145,7 +150,7 @@ const LoginScreen: React.FC = () => {
                 end={{x: 1, y: 0}}
                 style={styles.titleBadge}>
                 <Text style={styles.titleText}>
-                  粉紅絲帶臨床決策輔助工具(香港版)
+                  {t('homeLogoDesc1', '粉紅絲帶臨床決策輔助工具(香港版)')}
                 </Text>
               </LinearGradient>
               <LinearGradient
@@ -157,7 +162,7 @@ const LoginScreen: React.FC = () => {
                 start={{x: 0, y: 0}}
                 end={{x: 1, y: 0}}
                 style={styles.titleBadge}>
-                <Text style={styles.subtitleText}>BCT Aid HK</Text>
+                <Text style={styles.subtitleText}>{t('homeLogoDesc2', 'BCT Aid HK')}</Text>
               </LinearGradient>
             </View>
           </Animated.View>
@@ -181,10 +186,10 @@ const LoginScreen: React.FC = () => {
                     resizeMode="contain"
                   />
                   <View style={styles.inputTextContainer}>
-                    <Text style={styles.inputLabel}>登入名稱</Text>
+                    <Text style={styles.inputLabel}>{t('loginUsername', '登入名稱')}</Text>
                     <TextInput
                       style={styles.textInput}
-                      placeholder="輸入登入名稱"
+                      placeholder={t('loginFillUsername', '輸入登入名稱')}
                       placeholderTextColor="#9E619B"
                       value={username}
                       onChangeText={setUsername}
@@ -204,11 +209,11 @@ const LoginScreen: React.FC = () => {
                     resizeMode="contain"
                   />
                   <View style={styles.inputTextContainer}>
-                    <Text style={styles.inputLabel}>密碼</Text>
+                    <Text style={styles.inputLabel}>{t('loginPassword', '密碼')}</Text>
                     <TextInput
                       ref={passwordRef}
                       style={styles.textInput}
-                      placeholder="輸入密碼"
+                      placeholder={t('loginFillPassword', '輸入密碼')}
                       placeholderTextColor="#9E619B"
                       value={password}
                       onChangeText={setPassword}
@@ -237,7 +242,7 @@ const LoginScreen: React.FC = () => {
                       styles.loginButtonText,
                       !isFormValid && styles.loginButtonTextDisabled,
                     ]}>
-                    登入
+                    {t('login', '登入')}
                   </Text>
                 )}
               </TouchableOpacity>
@@ -255,7 +260,7 @@ const LoginScreen: React.FC = () => {
                 style={styles.questionIcon}
                 resizeMode="contain"
               />
-              <Text style={styles.forgotPasswordText}>忘記登入名稱或密碼?</Text>
+              <Text style={styles.forgotPasswordText}>{t('loginForgetUsernamePassword', '忘記登入名稱或密碼?')}</Text>
             </TouchableOpacity>
           </Animated.View>
       </KeyboardAwareScrollView>

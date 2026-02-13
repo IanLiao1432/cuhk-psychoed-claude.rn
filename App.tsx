@@ -2,6 +2,7 @@ import React from 'react';
 import {StatusBar} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {AuthProvider} from './src/context/AuthContext';
+import {WordingProvider} from './src/context/WordingContext';
 import AppNavigator from './src/navigation/AppNavigator';
 
 const App: React.FC = () => {
@@ -12,9 +13,11 @@ const App: React.FC = () => {
         backgroundColor="transparent"
         translucent
       />
-      <AuthProvider>
-        <AppNavigator />
-      </AuthProvider>
+      <WordingProvider>
+        <AuthProvider>
+          <AppNavigator />
+        </AuthProvider>
+      </WordingProvider>
     </SafeAreaProvider>
   );
 };

@@ -11,7 +11,8 @@
       "WebFetch(domain:docs.swmansion.com)",
       "Bash(node node_modules/react-native-reanimated/scripts/validate-react-native-version.js:*)",
       "Bash(echo:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "WebFetch(domain:www.relationapp.io)"
     ]
   }
 }

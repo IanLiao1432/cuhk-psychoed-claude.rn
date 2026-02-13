@@ -10,9 +10,11 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useAuth} from '../context/AuthContext';
+import {useWording} from '../context/WordingContext';
 
 const HomeScreen: React.FC = () => {
   const {signOut, state} = useAuth();
+  const {t} = useWording();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
 
@@ -33,10 +35,10 @@ const HomeScreen: React.FC = () => {
   }, [fadeAnim, scaleAnim]);
 
   const handleLogout = () => {
-    Alert.alert('登出', '確定要登出嗎？', [
-      {text: '取消', style: 'cancel'},
+    Alert.alert(t('logout', '登出'), t('confirmLogout', '確定要登出嗎？'), [
+      {text: t('cancel', '取消'), style: 'cancel'},
       {
-        text: '確定',
+        text: t('confirm', '確定'),
         style: 'destructive',
         onPress: async () => {
           try {
@@ -67,7 +69,7 @@ const HomeScreen: React.FC = () => {
           {state.isLoading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.logoutButtonText}>登出</Text>
+            <Text style={styles.logoutButtonText}>{t('logout', '登出')}</Text>
           )}
         </TouchableOpacity>
       </Animated.View>
