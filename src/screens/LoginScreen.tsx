@@ -10,6 +10,7 @@ import {
   Animated,
   Keyboard,
 } from 'react-native';
+import Svg, {Circle, Line} from 'react-native-svg';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import LinearGradient from 'react-native-linear-gradient';
 import {useAuth} from '../context/AuthContext';
@@ -24,6 +25,7 @@ const LoginScreen: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [showForgetSheet, setShowForgetSheet] = useState(false);
   const passwordRef = useRef<TextInput>(null);
 
@@ -148,6 +150,21 @@ const LoginScreen: React.FC = () => {
                       onSubmitEditing={() => passwordRef.current?.focus()}
                     />
                   </View>
+                  {username.length > 0 && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setUsername('');
+                        if (loginError) {setLoginError(null);}
+                      }}
+                      activeOpacity={0.7}
+                      hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
+                      <Svg width={20} height={20} viewBox="0 0 20 20">
+                        <Circle cx="10" cy="10" r="10" fill="#C4C4C4" />
+                        <Line x1="6.5" y1="6.5" x2="13.5" y2="13.5" stroke="#FFFFFF" strokeWidth={2} strokeLinecap="round" />
+                        <Line x1="13.5" y1="6.5" x2="6.5" y2="13.5" stroke="#FFFFFF" strokeWidth={2} strokeLinecap="round" />
+                      </Svg>
+                    </TouchableOpacity>
+                  )}
                 </View>
 
                 {/* Password Field */}
@@ -169,11 +186,37 @@ const LoginScreen: React.FC = () => {
                         setPassword(text);
                         if (loginError) {setLoginError(null);}
                       }}
-                      secureTextEntry
+                      secureTextEntry={!showPassword}
                       returnKeyType="done"
                       onSubmitEditing={handleLogin}
                     />
                   </View>
+                  {password.length > 0 && (
+                    <>
+                      <TouchableOpacity
+                        onPress={() => setShowPassword(prev => !prev)}
+                        activeOpacity={0.7}
+                        hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
+                        <Text style={styles.showPasswordText}>
+                          {showPassword ? t('hidePassword', '隱藏') : t('showPassword', '顯示')}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setPassword('');
+                          setShowPassword(false);
+                          if (loginError) {setLoginError(null);}
+                        }}
+                        activeOpacity={0.7}
+                        hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
+                        <Svg width={20} height={20} viewBox="0 0 20 20">
+                          <Circle cx="10" cy="10" r="10" fill="#C4C4C4" />
+                          <Line x1="6.5" y1="6.5" x2="13.5" y2="13.5" stroke="#FFFFFF" strokeWidth={2} strokeLinecap="round" />
+                          <Line x1="13.5" y1="6.5" x2="6.5" y2="13.5" stroke="#FFFFFF" strokeWidth={2} strokeLinecap="round" />
+                        </Svg>
+                      </TouchableOpacity>
+                    </>
+                  )}
                 </View>
               </View>
 
@@ -306,6 +349,11 @@ const styles = StyleSheet.create({
     color: '#6E1E6F',
     padding: 0,
     height: 24,
+  },
+  showPasswordText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#9E619B',
   },
   errorText: {
     fontWeight: '700',
