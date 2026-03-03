@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: 'transparent',
-    marginBottom: 8,
+    marginBottom: 16,
     overflow: 'hidden',
   },
   inputContainerError: {
@@ -331,7 +331,6 @@ const styles = StyleSheet.create({
   inputIcon: {
     width: 24,
     height: 24,
-    tintColor: '#6E1E6F',
   },
   inputTextContainer: {
     flex: 1,

@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, Text, Image, StyleSheet, Animated, Dimensions} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import {useWording} from '../context/WordingContext';
 
@@ -25,11 +26,6 @@ const BannerContent: React.FC = () => {
       <Image
         source={require('../assets/images/dancer.png')}
         style={styles.dancer}
-        resizeMode="contain"
-      />
-      <Image
-        source={require('../assets/images/ribbon.png')}
-        style={styles.ribbon}
         resizeMode="contain"
       />
       <Image
