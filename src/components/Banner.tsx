@@ -34,32 +34,36 @@ const BannerContent: React.FC = () => {
         resizeMode="contain"
       />
       <View style={styles.titleContainer}>
-        <LinearGradient
-          colors={[
-            'rgba(192, 220, 255, 0.5)',
-            'rgba(242, 175, 255, 0.5)',
-            'rgba(255, 171, 168, 0.5)',
-          ]}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 0}}
-          style={styles.titleBadge}>
+        <View style={styles.titleBadge}>
+          <LinearGradient
+            colors={[
+              'rgba(192, 220, 255, 0.5)',
+              'rgba(242, 175, 255, 0.5)',
+              'rgba(255, 171, 168, 0.5)',
+            ]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.titleBadgeBg}
+          />
           <Text style={styles.titleText}>
             {t('homeLogoDesc1', '粉紅絲帶臨床決策輔助工具(香港版)')}
           </Text>
-        </LinearGradient>
-        <LinearGradient
-          colors={[
-            'rgba(192, 220, 255, 0.5)',
-            'rgba(242, 175, 255, 0.5)',
-            'rgba(255, 171, 168, 0.5)',
-          ]}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 0}}
-          style={styles.titleBadge}>
+        </View>
+        <View style={styles.titleBadge}>
+          <LinearGradient
+            colors={[
+              'rgba(192, 220, 255, 0.5)',
+              'rgba(242, 175, 255, 0.5)',
+              'rgba(255, 171, 168, 0.5)',
+            ]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.titleBadgeBg}
+          />
           <Text style={styles.subtitleText}>
             {t('homeLogoDesc2', 'BCT Aid HK')}
           </Text>
-        </LinearGradient>
+        </View>
       </View>
     </>
   );
@@ -128,14 +132,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 221.67,
     left: 24,
-    bottom: 38,
     gap: 2,
   },
   titleBadge: {
     paddingHorizontal: 8,
-    paddingVertical: 0,
-    borderRadius: 41,
+    paddingVertical: 2,
     alignSelf: 'flex-start',
+  },
+  titleBadgeBg: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 41,
   },
   titleText: {
     fontWeight: '700',
