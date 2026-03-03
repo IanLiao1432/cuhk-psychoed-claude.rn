@@ -100,15 +100,9 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
   }, []);
 
   const signIn = useCallback(async (credentials: UserLogin) => {
-    dispatch({type: 'SET_LOADING', isLoading: true});
-    try {
-      const {token, refreshToken} = await authService.login(credentials);
-      const user = await authService.getUser();
-      dispatch({type: 'SIGN_IN', token, refreshToken, user});
-    } catch (error) {
-      dispatch({type: 'SET_LOADING', isLoading: false});
-      throw error;
-    }
+    const {token, refreshToken} = await authService.login(credentials);
+    const user = await authService.getUser();
+    dispatch({type: 'SIGN_IN', token, refreshToken, user});
   }, []);
 
   const signOut = useCallback(async () => {
