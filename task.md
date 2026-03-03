@@ -8,8 +8,8 @@
 ## 1. Splash Screen
 
 | # | Task | Status | Description |
-|---|------|--------|-------------|
-| 1 | SplashScreen | **TODO** | Figma `0.0.0.0_breast_splash`. App launch screen showing the logo centered on gradient background. Displays briefly while the app initializes and checks auth state before navigating to Login or Home. |
+|---|------|----|-------------|
+| 1 | SplashScreen | Done | Figma `0.0.0.0_breast_splash`. App launch screen showing the logo centered on gradient background. Displays briefly while the app initializes and checks auth state before navigating to Login or Home. |
 
 ---
 

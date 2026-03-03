@@ -25,7 +25,11 @@
       "mcp__claude_ai_Figma__whoami",
       "mcp__figma-remote-mcp__get_metadata",
       "mcp__figma-remote-mcp__get_screenshot",
-      "mcp__figma-remote-mcp__get_design_context"
+      "mcp__figma-remote-mcp__get_design_context",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(npx react-native-bootsplash:*)"
     ]
   }
 }
