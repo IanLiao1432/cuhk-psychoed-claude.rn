@@ -38,6 +38,13 @@ export const authService = {
     return data;
   },
 
+  updateTreatmentDate: async (date: string): Promise<User> => {
+    const {data} = await apiClient.put<User>('/api/app/auth/user', {
+      treatmentDate: date,
+    });
+    return data;
+  },
+
   getStoredTokens: async (): Promise<{
     token: string | null;
     refreshToken: string | null;

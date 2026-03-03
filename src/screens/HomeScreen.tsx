@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useCallback} from 'react';
+import React, {useEffect, useRef, useCallback, useState} from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,6 @@ import {
   Image,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {useAuth} from '../context/AuthContext';
 import {useWording} from '../context/WordingContext';
 import Banner from '../components/Banner';
 import MenuCard from '../components/MenuCard';
@@ -20,13 +19,14 @@ import ArticleIcon from '../components/icons/ArticleIcon';
 import QuestIcon from '../components/icons/QuestIcon';
 import ContactIcon from '../components/icons/ContactIcon';
 import AboutIcon from '../components/icons/AboutIcon';
+import AccountSheet from '../components/AccountSheet';
 import logoCuhkSvg from '../assets/svg/logo_cuhk';
 import logoMediSvg from '../assets/svg/logo_medi';
 import logoSchoolSvg from '../assets/svg/logo_school';
 
 const HomeScreen: React.FC = () => {
-  const {signOut} = useAuth();
   const {t} = useWording();
+  const [showAccountSheet, setShowAccountSheet] = useState(false);
 
   // Animations
   const bannerOpacity = useRef(new Animated.Value(0)).current;
@@ -61,22 +61,9 @@ const HomeScreen: React.FC = () => {
     ]).start();
   }, [bannerOpacity, cardsOpacity, cardsTranslateY, pillsOpacity]);
 
-  const handleLogout = useCallback(() => {
-    Alert.alert(t('logout', '登出'), t('confirmLogout', '確定要登出嗎？'), [
-      {text: t('cancel', '取消'), style: 'cancel'},
-      {
-        text: t('confirm', '確定'),
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await signOut();
-          } catch {
-            Alert.alert('錯誤', '登出失敗，請稍後再試');
-          }
-        },
-      },
-    ]);
-  }, [signOut, t]);
+  const handleAccountPress = useCallback(() => {
+    setShowAccountSheet(true);
+  }, []);
 
   const handleContact = useCallback(() => {
     const phone = t('whatsappNumber', '85267386349');
@@ -132,7 +119,7 @@ const HomeScreen: React.FC = () => {
               />
             }
             label={t('homeAccount', '帳戶')}
-            onPress={handleLogout}
+            onPress={handleAccountPress}
           />
           <ActionPill
             icon={<ContactIcon size={16} color="#9E619B" />}
@@ -172,6 +159,11 @@ const HomeScreen: React.FC = () => {
           </View>
         </View>
       </ScrollView>
+
+      <AccountSheet
+        visible={showAccountSheet}
+        onClose={() => setShowAccountSheet(false)}
+      />
     </LinearGradient>
   );
 };

@@ -137,6 +137,8 @@ const ForgetPasswordSheet: React.FC<ForgetPasswordSheetProps> = ({
             {/* Title row */}
             <View style={styles.titleRow}>
               <LinearGradient
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}
                 colors={['#C0DCFF', '#F2AFFF', '#FFABA8']}
                 style={styles.titleBar}
               />
@@ -186,12 +188,12 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 24,
-    paddingTop: 24,
+    paddingTop: 56,
   },
   closeButton: {
     position: 'absolute',
-    top: 16,
-    right: 16,
+    top: 12,
+    right: 12,
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -204,25 +206,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginBottom: 16,
-    marginTop: 8,
+    marginBottom: 24,
   },
   titleBar: {
     width: 8,
-    height: 32,
-    borderRadius: 4,
+    borderRadius: 13,
+    alignSelf: 'stretch',
   },
   title: {
     fontWeight: '700',
     fontSize: 23,
     color: '#333333',
     flex: 1,
+    textAlign: 'left',
   },
   description: {
     fontSize: 17,
-    lineHeight: 26,
+    lineHeight: 24,
     color: '#6E1E6F',
-    marginBottom: 24,
+    marginBottom: 32,
   },
   descriptionBold: {
     fontWeight: '700',

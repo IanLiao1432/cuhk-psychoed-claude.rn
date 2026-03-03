@@ -13,12 +13,14 @@ type AuthAction =
   | {type: 'RESTORE_TOKEN'; token: string; refreshToken: string; user: User}
   | {type: 'SIGN_IN'; token: string; refreshToken: string; user: User}
   | {type: 'SIGN_OUT'}
-  | {type: 'SET_LOADING'; isLoading: boolean};
+  | {type: 'SET_LOADING'; isLoading: boolean}
+  | {type: 'UPDATE_USER'; user: User};
 
 interface AuthContextType {
   state: AuthState;
   signIn: (credentials: UserLogin) => Promise<void>;
   signOut: () => Promise<void>;
+  updateTreatmentDate: (date: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -57,6 +59,11 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         ...state,
         isLoading: action.isLoading,
       };
+    case 'UPDATE_USER':
+      return {
+        ...state,
+        user: action.user,
+      };
     default:
       return state;
   }
@@ -94,9 +101,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
 
   const signIn = useCallback(async (credentials: UserLogin) => {
     dispatch({type: 'SET_LOADING', isLoading: true});
-    const {token, refreshToken} = await authService.login(credentials);
-    const user = await authService.getUser();
-    dispatch({type: 'SIGN_IN', token, refreshToken, user});
+    try {
+      const {token, refreshToken} = await authService.login(credentials);
+      const user = await authService.getUser();
+      dispatch({type: 'SIGN_IN', token, refreshToken, user});
+    } catch (error) {
+      dispatch({type: 'SET_LOADING', isLoading: false});
+      throw error;
+    }
   }, []);
 
   const signOut = useCallback(async () => {
@@ -105,9 +117,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
     dispatch({type: 'SIGN_OUT'});
   }, []);
 
+  const updateTreatmentDate = useCallback(async (date: string) => {
+    const updatedUser = await authService.updateTreatmentDate(date);
+    dispatch({type: 'UPDATE_USER', user: updatedUser});
+  }, []);
+
   const contextValue = useMemo(
-    () => ({state, signIn, signOut}),
-    [state, signIn, signOut],
+    () => ({state, signIn, signOut, updateTreatmentDate}),
+    [state, signIn, signOut, updateTreatmentDate],
   );
 
   return (
