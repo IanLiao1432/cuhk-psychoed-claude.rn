@@ -1,14 +1,11 @@
-import React, {useRef, useEffect, useCallback, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  Modal,
-  Animated,
   Alert,
   Image,
-  Pressable,
   Platform,
 } from 'react-native';
 import Svg, {Path} from 'react-native-svg';
@@ -16,11 +13,10 @@ import LinearGradient from 'react-native-linear-gradient';
 import DateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useAuth} from '../context/AuthContext';
 import {useWording} from '../context/WordingContext';
-import CloseIcon from './icons/CloseIcon';
 import CalendarIcon from './icons/CalendarIcon';
+import BottomSheet from './BottomSheet';
 
 const ChevronRight: React.FC<{size?: number; color?: string}> = ({
   size = 12,
@@ -45,47 +41,9 @@ interface AccountSheetProps {
 const AccountSheet: React.FC<AccountSheetProps> = ({visible, onClose}) => {
   const {state, signOut, updateTreatmentDate} = useAuth();
   const {t} = useWording();
-  const insets = useSafeAreaInsets();
-  const overlayOpacity = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(500)).current;
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [tempDate, setTempDate] = useState(new Date());
-
-  useEffect(() => {
-    if (visible) {
-      setShowDatePicker(false);
-      Animated.parallel([
-        Animated.timing(overlayOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [visible, overlayOpacity, slideAnim]);
-
-  const handleClose = useCallback(() => {
-    Animated.parallel([
-      Animated.timing(overlayOpacity, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 500,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      onClose();
-    });
-  }, [overlayOpacity, slideAnim, onClose]);
 
   const handleDateRowPress = useCallback(() => {
     if (showDatePicker) {
@@ -119,6 +77,11 @@ const AccountSheet: React.FC<AccountSheetProps> = ({visible, onClose}) => {
     }
   }, [tempDate, updateTreatmentDate]);
 
+  const handleClose = useCallback(() => {
+    setShowDatePicker(false);
+    onClose();
+  }, [onClose]);
+
   const handleLogout = useCallback(() => {
     Alert.alert(t('logout', '登出'), t('confirmLogout', '確定要登出嗎？'), [
       {text: t('cancel', '取消'), style: 'cancel'},
@@ -128,14 +91,14 @@ const AccountSheet: React.FC<AccountSheetProps> = ({visible, onClose}) => {
         onPress: async () => {
           try {
             await signOut();
-            handleClose();
+            onClose();
           } catch {
             Alert.alert('錯誤', '登出失敗，請稍後再試');
           }
         },
       },
     ]);
-  }, [signOut, t, handleClose]);
+  }, [signOut, t, onClose]);
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) {
@@ -148,240 +111,138 @@ const AccountSheet: React.FC<AccountSheetProps> = ({visible, onClose}) => {
   const treatmentDateDisplay = formatDate(state.user?.treatmentDate);
 
   return (
-    <Modal
-      transparent
+    <BottomSheet
       visible={visible}
-      animationType="none"
-      statusBarTranslucent
-      onRequestClose={handleClose}>
-      <View style={styles.modalContainer}>
-        {/* Dark overlay */}
-        <Animated.View style={[styles.overlay, {opacity: overlayOpacity}]}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
-        </Animated.View>
+      onClose={handleClose}
+      title={t('accountTitle', '您的帳戶')}>
+      {/* Profile card */}
+      <View style={styles.profileCard}>
+        {/* Ribbon decoration */}
+        <Image
+          source={require('../assets/images/ribbon.png')}
+          style={styles.ribbonImage}
+          resizeMode="cover"
+        />
+        {/* Gradient overlay */}
+        <LinearGradient
+          colors={[
+            'rgba(192,220,255,0.5)',
+            'rgba(242,175,255,0.5)',
+            'rgba(255,171,168,0.5)',
+          ]}
+          start={{x: 0, y: 0.5}}
+          end={{x: 1, y: 0.5}}
+          style={StyleSheet.absoluteFill}
+        />
+        {/* Inner border */}
+        <View style={styles.profileCardInnerBorder} />
 
-        {/* Bottom sheet */}
-        <Animated.View
-          style={[
-            styles.sheetWrapper,
-            {transform: [{translateY: slideAnim}]},
-          ]}>
-          {/* Gradient content area */}
-          <LinearGradient
-            colors={['#FFF4F4', '#FFFFFF']}
-            style={styles.sheetGradient}>
-            {/* Close button */}
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={handleClose}
-              activeOpacity={0.7}
-              hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
-              <CloseIcon size={14} color="#333333" />
-            </TouchableOpacity>
+        {/* Username row */}
+        <View style={styles.usernameRow}>
+          <Image
+            source={require('../assets/images/ic_profile.png')}
+            style={styles.profileIcon}
+            resizeMode="contain"
+          />
+          <Text style={styles.usernameText}>
+            {state.user?.username ?? ''}
+          </Text>
+        </View>
 
-            {/* Title row */}
-            <View style={styles.titleRow}>
-              <LinearGradient
-                colors={['#C0DCFF', '#F2AFFF', '#FFABA8']}
-                style={styles.titleBar}
-              />
-              <Text style={styles.title}>
-                {t('accountTitle', '您的帳戶')}
+        {/* Date row */}
+        <View style={styles.divider}>
+          <TouchableOpacity
+            style={styles.dateRow}
+            onPress={handleDateRowPress}
+            activeOpacity={0.7}>
+            <View style={styles.dateRowLeft}>
+              <CalendarIcon size={24} color="#6E1E6F" />
+              <Text style={styles.dateLabel}>
+                {t('surgeryDate', '手術日期')}
               </Text>
             </View>
-
-            {/* Profile card */}
-            <View style={styles.profileCard}>
-              {/* Ribbon decoration */}
-              <Image
-                source={require('../assets/images/ribbon.png')}
-                style={styles.ribbonImage}
-                resizeMode="cover"
-              />
-              {/* Gradient overlay */}
-              <LinearGradient
-                colors={[
-                  'rgba(192,220,255,0.5)',
-                  'rgba(242,175,255,0.5)',
-                  'rgba(255,171,168,0.5)',
-                ]}
-                start={{x: 0, y: 0.5}}
-                end={{x: 1, y: 0.5}}
-                style={StyleSheet.absoluteFill}
-              />
-              {/* Inner border */}
-              <View style={styles.profileCardInnerBorder} />
-
-              {/* Username row */}
-              <View style={styles.usernameRow}>
-                <Image
-                  source={require('../assets/images/ic_profile.png')}
-                  style={styles.profileIcon}
-                  resizeMode="contain"
-                />
-                <Text style={styles.usernameText}>
-                  {state.user?.username ?? ''}
-                </Text>
-              </View>
-
-              {/* Date row */}
-              <View style={styles.divider}>
-                <TouchableOpacity
-                  style={styles.dateRow}
-                  onPress={handleDateRowPress}
-                  activeOpacity={0.7}>
-                  <View style={styles.dateRowLeft}>
-                    <CalendarIcon size={24} color="#6E1E6F" />
-                    <Text style={styles.dateLabel}>
-                      {t('surgeryDate', '手術日期')}
-                    </Text>
-                  </View>
-                  <View style={styles.dateRowRight}>
-                    <Text
-                      style={[
-                        styles.dateValue,
-                        !treatmentDateDisplay && styles.dateValuePlaceholder,
-                      ]}>
-                      {treatmentDateDisplay ??
-                        t('selectDate', '選擇日期')}
-                    </Text>
-                    <ChevronRight size={12} color="#6E1E6F" />
-                  </View>
-                </TouchableOpacity>
-              </View>
+            <View style={styles.dateRowRight}>
+              <Text
+                style={[
+                  styles.dateValue,
+                  !treatmentDateDisplay && styles.dateValuePlaceholder,
+                ]}>
+                {treatmentDateDisplay ?? t('selectDate', '選擇日期')}
+              </Text>
+              <ChevronRight size={12} color="#6E1E6F" />
             </View>
-
-            {/* Date picker */}
-            {showDatePicker && (
-              <View style={styles.datePickerSection}>
-                <DateTimePicker
-                  value={tempDate}
-                  mode="date"
-                  display={Platform.OS === 'ios' ? 'spinner' : 'spinner'}
-                  locale="zh-Hant"
-                  onChange={handleDateChange}
-                  style={styles.datePicker}
-                />
-                <View style={styles.datePickerButtons}>
-                  <TouchableOpacity
-                    style={styles.datePickerButtonWrapper}
-                    onPress={handleDateCancel}
-                    activeOpacity={0.8}>
-                    <LinearGradient
-                      colors={['#FEEAEE', '#FFA7B3']}
-                      start={{x: 0, y: 0}}
-                      end={{x: 1, y: 0}}
-                      style={styles.pillButton}>
-                      <Text style={styles.pillButtonText}>
-                        {t('cancel', '取消')}
-                      </Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.datePickerButtonWrapper}
-                    onPress={handleDateConfirm}
-                    activeOpacity={0.8}>
-                    <LinearGradient
-                      colors={['#FEEAEE', '#FFA7B3']}
-                      start={{x: 0, y: 0}}
-                      end={{x: 1, y: 0}}
-                      style={styles.pillButton}>
-                      <Text style={styles.pillButtonText}>
-                        {t('confirm', '確定')}
-                      </Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-
-            {/* Logout button */}
-            <View style={styles.logoutContainer}>
-              <TouchableOpacity onPress={handleLogout} activeOpacity={0.8}>
-                <LinearGradient
-                  colors={['#FEEAEE', '#FFA7B3']}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 0}}
-                  style={styles.logoutButton}>
-                  <Text style={styles.logoutText}>
-                    {t('logout', '登出')}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </LinearGradient>
-
-          {/* White safe area fill below content */}
-          <View
-            style={[
-              styles.bottomSafeArea,
-              {height: Math.max(insets.bottom, 20)},
-            ]}
-          />
-        </Animated.View>
+          </TouchableOpacity>
+        </View>
       </View>
-    </Modal>
+
+      {/* Date picker */}
+      {showDatePicker && (
+        <View style={styles.datePickerSection}>
+          <DateTimePicker
+            value={tempDate}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'spinner'}
+            locale="zh-Hant"
+            onChange={handleDateChange}
+            style={styles.datePicker}
+          />
+          <View style={styles.datePickerButtons}>
+            <TouchableOpacity
+              style={styles.datePickerButtonWrapper}
+              onPress={handleDateCancel}
+              activeOpacity={0.8}>
+              <LinearGradient
+                colors={['#FEEAEE', '#FFA7B3']}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}
+                style={styles.pillButton}>
+                <Text style={styles.pillButtonText}>
+                  {t('cancel', '取消')}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.datePickerButtonWrapper}
+              onPress={handleDateConfirm}
+              activeOpacity={0.8}>
+              <LinearGradient
+                colors={['#FEEAEE', '#FFA7B3']}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}
+                style={styles.pillButton}>
+                <Text style={styles.pillButtonText}>
+                  {t('confirm', '確定')}
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {/* Logout button */}
+      <View style={styles.logoutContainer}>
+        <TouchableOpacity onPress={handleLogout} activeOpacity={0.8}>
+          <LinearGradient
+            colors={['#FEEAEE', '#FFA7B3']}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}
+            style={styles.logoutButton}>
+            <Text style={styles.logoutText}>{t('logout', '登出')}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
+    </BottomSheet>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-  },
-  sheetWrapper: {},
-  sheetGradient: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    borderWidth: 1,
-    borderBottomWidth: 0,
-    borderColor: 'rgba(255,255,255,0.5)',
-  },
-  bottomSafeArea: {
-    backgroundColor: '#FFFFFF',
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0,0,0,0.06)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  titleRow: {
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginTop: 56,
-    marginBottom: 24,
-  },
-  titleBar: {
-    width: 8,
-    height: 32,
-    borderRadius: 13,
-  },
-  title: {
-    fontWeight: '700',
-    fontSize: 23,
-    color: '#6E1E6F',
-    flex: 1,
-  },
   profileCard: {
     borderRadius: 24,
     borderWidth: 4,
     borderColor: 'rgba(255,255,255,0.5)',
     paddingVertical: 24,
     shadowColor: '#FFCECE',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.5,
     shadowRadius: 16,
     elevation: 6,

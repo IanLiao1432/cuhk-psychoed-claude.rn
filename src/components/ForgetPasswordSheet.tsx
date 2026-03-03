@@ -1,20 +1,9 @@
-import React, {useRef, useEffect, useCallback} from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Modal,
-  Animated,
-  Linking,
-  Keyboard,
-  Pressable,
-} from 'react-native';
+import React, {useCallback} from 'react';
+import {Text, TouchableOpacity, StyleSheet, Linking} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useWording} from '../context/WordingContext';
-import CloseIcon from './icons/CloseIcon';
 import WhatsAppIcon from './icons/WhatsAppIcon';
+import BottomSheet from './BottomSheet';
 
 interface ForgetPasswordSheetProps {
   visible: boolean;
@@ -26,44 +15,6 @@ const ForgetPasswordSheet: React.FC<ForgetPasswordSheetProps> = ({
   onClose,
 }) => {
   const {t} = useWording();
-  const insets = useSafeAreaInsets();
-  const overlayOpacity = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(300)).current;
-
-  useEffect(() => {
-    if (visible) {
-      Keyboard.dismiss();
-      Animated.parallel([
-        Animated.timing(overlayOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [visible, overlayOpacity, slideAnim]);
-
-  const handleClose = useCallback(() => {
-    Animated.parallel([
-      Animated.timing(overlayOpacity, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 300,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      onClose();
-    });
-  }, [overlayOpacity, slideAnim, onClose]);
 
   const handleWhatsApp = useCallback(() => {
     const phone = t('whatsappNumber', '85267386349');
@@ -103,123 +54,31 @@ const ForgetPasswordSheet: React.FC<ForgetPasswordSheetProps> = ({
   };
 
   return (
-    <Modal
-      transparent
+    <BottomSheet
       visible={visible}
-      animationType="none"
-      statusBarTranslucent
-      onRequestClose={handleClose}>
-      <View style={styles.modalContainer}>
-        {/* Dark overlay */}
-        <Animated.View
-          style={[styles.overlay, {opacity: overlayOpacity}]}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
-        </Animated.View>
+      onClose={onClose}
+      title={t('forgetLoginInfoTitle', '找回登入名稱或密碼')}>
+      {/* Description */}
+      {renderDescription()}
 
-        {/* Bottom sheet */}
-        <Animated.View
-          style={[
-            styles.sheetWrapper,
-            {transform: [{translateY: slideAnim}]},
-          ]}>
-          <LinearGradient
-            colors={['#FFF4F4', '#FFFFFF']}
-            style={[styles.sheet, {paddingBottom: Math.max(insets.bottom, 20)}]}>
-            {/* Close button */}
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={handleClose}
-              activeOpacity={0.7}
-              hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
-              <CloseIcon size={14} color="#333333" />
-            </TouchableOpacity>
-
-            {/* Title row */}
-            <View style={styles.titleRow}>
-              <LinearGradient
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 0}}
-                colors={['#C0DCFF', '#F2AFFF', '#FFABA8']}
-                style={styles.titleBar}
-              />
-              <Text style={styles.title}>
-                {t('forgetLoginInfoTitle', '找回登入名稱或密碼')}
-              </Text>
-            </View>
-
-            {/* Description */}
-            {renderDescription()}
-
-            {/* WhatsApp button */}
-            <TouchableOpacity
-              onPress={handleWhatsApp}
-              activeOpacity={0.8}>
-              <LinearGradient
-                colors={['#25D366', '#00BE47']}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 0}}
-                style={styles.whatsappButton}>
-                <WhatsAppIcon size={24} color="#FFFFFF" />
-                <Text style={styles.whatsappText}>
-                  {t('whatsAppContactUs', 'WhatsApp 聯絡我們')}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </LinearGradient>
-        </Animated.View>
-      </View>
-    </Modal>
+      {/* WhatsApp button */}
+      <TouchableOpacity onPress={handleWhatsApp} activeOpacity={0.8}>
+        <LinearGradient
+          colors={['#25D366', '#00BE47']}
+          start={{x: 0, y: 0}}
+          end={{x: 1, y: 0}}
+          style={styles.whatsappButton}>
+          <WhatsAppIcon size={24} color="#FFFFFF" />
+          <Text style={styles.whatsappText}>
+            {t('whatsAppContactUs', 'WhatsApp 聯絡我們')}
+          </Text>
+        </LinearGradient>
+      </TouchableOpacity>
+    </BottomSheet>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-  },
-  sheetWrapper: {
-    // Ensures the sheet sits at the bottom
-  },
-  sheet: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 24,
-    paddingTop: 56,
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0,0,0,0.06)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 24,
-  },
-  titleBar: {
-    width: 8,
-    borderRadius: 13,
-    alignSelf: 'stretch',
-  },
-  title: {
-    fontWeight: '700',
-    fontSize: 23,
-    color: '#333333',
-    flex: 1,
-    textAlign: 'left',
-  },
   description: {
     fontSize: 17,
     lineHeight: 24,
