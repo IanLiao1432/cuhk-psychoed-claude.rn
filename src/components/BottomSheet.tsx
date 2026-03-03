@@ -21,12 +21,14 @@ export const BottomSheetTitle: React.FC<BottomSheetTitleProps> = ({
   title,
 }) => (
   <View style={styles.titleRow}>
-    <LinearGradient
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-      colors={['#C0DCFF', '#F2AFFF', '#FFABA8']}
-      style={styles.titleBar}
-    />
+    <View style={styles.titleBarWrap}>
+      <LinearGradient
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        colors={['#C0DCFF', '#F2AFFF', '#FFABA8']}
+        style={StyleSheet.absoluteFill}
+      />
+    </View>
     <Text style={styles.title}>{title}</Text>
   </View>
 );
@@ -175,11 +177,11 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 24,
   },
-  titleBar: {
+  titleBarWrap: {
     width: 8,
-    minHeight: 17,
-    borderRadius: 13,
     alignSelf: 'stretch',
+    borderRadius: 13,
+    overflow: 'hidden',
   },
   title: {
     fontWeight: '700',
