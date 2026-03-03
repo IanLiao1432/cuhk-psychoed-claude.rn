@@ -6,11 +6,14 @@ import {useAuth} from '../context/AuthContext';
 import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
 import InfoListScreen from '../screens/InfoListScreen';
+import ArticleDetailScreen from '../screens/ArticleDetailScreen';
+import {ReadingMaterialItem} from '../types/ReadingMaterialItem';
 
 export type RootStackParamList = {
   Login: undefined;
   Home: undefined;
   InfoList: undefined;
+  ArticleDetail: {article: ReadingMaterialItem};
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -38,6 +41,13 @@ const AppNavigator: React.FC = () => {
             <Stack.Screen
               name="InfoList"
               component={InfoListScreen}
+              options={{
+                animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen
+              name="ArticleDetail"
+              component={ArticleDetailScreen}
               options={{
                 animation: 'slide_from_right',
               }}

@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Image,
   Linking,
-  Alert,
   Animated,
   Easing,
 } from 'react-native';
@@ -15,6 +14,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import Svg, {Circle, Rect, Line} from 'react-native-svg';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../navigation/AppNavigator';
 import {useWording} from '../context/WordingContext';
 import {getReadingMaterialGroups} from '../assets/staticContent/readingMaterialGroups';
 import {ReadingMaterialGroup, ReadingMaterialItem} from '../types/ReadingMaterialItem';
@@ -163,12 +164,14 @@ const AnimatedSection: React.FC<AnimatedSectionProps> = ({
 
 const InfoListScreen: React.FC = () => {
   const {t} = useWording();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
   const sections = useMemo(() => getReadingMaterialGroups(t as any), [t]);
   const [expandedSections, setExpandedSections] = useState<Set<number>>(
     new Set([1]),
   );
+
+  console.log(sections)
 
   const toggleSection = useCallback((sectionNumber: number) => {
     setExpandedSections(prev => {
@@ -193,9 +196,9 @@ const InfoListScreen: React.FC = () => {
     Linking.openURL(`https://wa.me/${phone}?text=${message}`);
   }, [t]);
 
-  const handleArticlePress = useCallback((_item: ReadingMaterialItem) => {
-    Alert.alert('Coming Soon');
-  }, []);
+  const handleArticlePress = useCallback((item: ReadingMaterialItem) => {
+    navigation.navigate('ArticleDetail', {article: item});
+  }, [navigation]);
 
   const renderArticle = (item: ReadingMaterialItem, index: number, total: number) => {
     const isLast = index === total - 1;
