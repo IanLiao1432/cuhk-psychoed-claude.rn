@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   },
   articleTitleWrap: {
     flex: 1,
-    paddingVertical: 6,
+    paddingVertical: 0,
   },
   articleTitle: {
     fontWeight: '400',
