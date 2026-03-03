@@ -1,10 +1,11 @@
-import React, {useState, useCallback, useRef, useEffect} from 'react';
+import React, {useState, useCallback, useRef, useEffect, useMemo} from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  Image,
   Linking,
   Alert,
   Animated,
@@ -15,64 +16,10 @@ import Svg, {Circle, Rect, Line} from 'react-native-svg';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {useWording} from '../context/WordingContext';
+import {getReadingMaterialGroups} from '../assets/staticContent/readingMaterialGroups';
+import {ReadingMaterialGroup, ReadingMaterialItem} from '../types/ReadingMaterialItem';
 import BackIcon from '../components/icons/BackIcon';
-import PassageIcon from '../components/icons/PassageIcon';
 import WhatsAppIcon from '../components/icons/WhatsAppIcon';
-
-interface Article {
-  title: string;
-}
-
-interface Section {
-  number: number;
-  title: string;
-  subtitle: string;
-  articles: Article[];
-}
-
-const SECTIONS: Section[] = [
-  {
-    number: 1,
-    title: '治療前的決擇',
-    subtitle: '手術前',
-    articles: [
-      {title: '乳癌的資訊'},
-      {title: '常見的乳腺癌治療方法'},
-      {title: '手術及常見副作用的管理'},
-    ],
-  },
-  {
-    number: 2,
-    title: '迎接未來治療挑戰 (一)',
-    subtitle: '術後兩週',
-    articles: [
-      {title: '藥物治療及常見副作用的管理'},
-      {title: '放射治療和常見副作用的處理'},
-      {title: '飲食、體重控制和運動'},
-    ],
-  },
-  {
-    number: 3,
-    title: '迎接未來治療挑戰 (二)',
-    subtitle: '術後三個月',
-    articles: [
-      {title: '荷爾蒙治療及常見副作用的管理'},
-      {title: '性健康與身體形象'},
-      {title: '睡眠和休息'},
-      {title: '精神健康'},
-    ],
-  },
-  {
-    number: 4,
-    title: '治療後的決擇',
-    subtitle: '術後六個月',
-    articles: [
-      {title: '減輕復發風險'},
-      {title: '癌症治療後的健康飲食和運動'},
-      {title: '癌症治療以外的支援'},
-    ],
-  },
-];
 
 // Collapse/Expand icon (minus when expanded, plus when collapsed)
 const CollapseIcon = ({expanded}: {expanded: boolean}) => (
@@ -110,11 +57,11 @@ const SmallArrow = () => (
 );
 
 interface AnimatedSectionProps {
-  section: Section;
+  section: ReadingMaterialGroup;
   isExpanded: boolean;
   onToggle: () => void;
-  onArticlePress: (article: Article) => void;
-  renderArticle: (article: Article, index: number, total: number) => React.ReactElement;
+  onArticlePress: (article: ReadingMaterialItem) => void;
+  renderArticle: (article: ReadingMaterialItem, index: number, total: number) => React.ReactElement;
 }
 
 const ANIM_DURATION = 350;
@@ -182,12 +129,12 @@ const AnimatedSection: React.FC<AnimatedSectionProps> = ({
         activeOpacity={0.7}>
         <View style={styles.sectionHeaderLeft}>
           <View style={styles.sectionNumber}>
-            <Text style={styles.sectionNumberBold}>{section.number}</Text>
+            <Text style={styles.sectionNumberBold}>{section.sectionNumber}</Text>
             <Text style={styles.sectionNumberSlash}>/</Text>
           </View>
           <View style={styles.sectionTitleGroup}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
-            <Text style={styles.sectionSubtitle}>{section.subtitle}</Text>
+            <Text style={styles.sectionSubtitle}>{section.description}</Text>
           </View>
         </View>
         <CollapseIcon expanded={isExpanded} />
@@ -204,8 +151,8 @@ const AnimatedSection: React.FC<AnimatedSectionProps> = ({
                 setContentHeight(h);
               }
             }}>
-            {section.articles.map((article, idx) =>
-              renderArticle(article, idx, section.articles.length),
+            {section.items.map((item, idx) =>
+              renderArticle(item, idx, section.items.length),
             )}
           </View>
         </Animated.View>
@@ -218,6 +165,7 @@ const InfoListScreen: React.FC = () => {
   const {t} = useWording();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const sections = useMemo(() => getReadingMaterialGroups(t as any), [t]);
   const [expandedSections, setExpandedSections] = useState<Set<number>>(
     new Set([1]),
   );
@@ -245,24 +193,24 @@ const InfoListScreen: React.FC = () => {
     Linking.openURL(`https://wa.me/${phone}?text=${message}`);
   }, [t]);
 
-  const handleArticlePress = useCallback((_article: Article) => {
+  const handleArticlePress = useCallback((_item: ReadingMaterialItem) => {
     Alert.alert('Coming Soon');
   }, []);
 
-  const renderArticle = (article: Article, index: number, total: number) => {
+  const renderArticle = (item: ReadingMaterialItem, index: number, total: number) => {
     const isLast = index === total - 1;
     return (
       <TouchableOpacity
-        key={index}
+        key={item.step}
         style={[styles.articleRow, !isLast && styles.articleRowBorder]}
-        onPress={() => handleArticlePress(article)}
+        onPress={() => handleArticlePress(item)}
         activeOpacity={0.7}>
         <View style={styles.articleContent}>
           <View style={styles.articleIconWrap}>
-            <PassageIcon size={24} />
+            <Image source={item.image} style={styles.articleIcon} resizeMode="contain" />
           </View>
           <View style={styles.articleTitleWrap}>
-            <Text style={styles.articleTitle}>{article.title}</Text>
+            <Text style={styles.articleTitle}>{item.title}</Text>
           </View>
           <View style={styles.articleArrowWrap}>
             <SmallArrow />
@@ -302,12 +250,12 @@ const InfoListScreen: React.FC = () => {
           {paddingBottom: Math.max(insets.bottom, 20)},
         ]}
         showsVerticalScrollIndicator={false}>
-        {SECTIONS.map(section => (
+        {sections.map(section => (
           <AnimatedSection
-            key={section.number}
+            key={section.sectionNumber}
             section={section}
-            isExpanded={expandedSections.has(section.number)}
-            onToggle={() => toggleSection(section.number)}
+            isExpanded={expandedSections.has(section.sectionNumber)}
+            onToggle={() => toggleSection(section.sectionNumber)}
             onArticlePress={handleArticlePress}
             renderArticle={renderArticle}
           />
@@ -440,6 +388,11 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   articleIconWrap: {
+    height: 24,
+    width: 24,
+  },
+  articleIcon: {
+    width: 24,
     height: 24,
   },
   articleTitleWrap: {
