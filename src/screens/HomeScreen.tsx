@@ -10,6 +10,9 @@ import {
   Image,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../navigation/AppNavigator';
 import {useWording} from '../context/WordingContext';
 import Banner from '../components/Banner';
 import MenuCard from '../components/MenuCard';
@@ -26,6 +29,7 @@ import logoSchoolSvg from '../assets/svg/logo_school';
 
 const HomeScreen: React.FC = () => {
   const {t} = useWording();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [showAccountSheet, setShowAccountSheet] = useState(false);
 
   // Animations
@@ -99,7 +103,7 @@ const HomeScreen: React.FC = () => {
           <MenuCard
             icon={<ArticleIcon size={60} />}
             title={t('homeMenuInfo', '實用資訊')}
-            onPress={() => Alert.alert('Coming Soon')}
+            onPress={() => navigation.navigate('InfoList')}
           />
           <MenuCard
             icon={<QuestIcon size={60} />}

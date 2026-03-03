@@ -4,10 +4,12 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {useAuth} from '../context/AuthContext';
 import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
+import InfoListScreen from '../screens/InfoListScreen';
 
 export type RootStackParamList = {
   Login: undefined;
   Home: undefined;
+  InfoList: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -19,14 +21,23 @@ const AppNavigator: React.FC = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
         {state.isSignedIn ? (
-          <Stack.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{
-              animationTypeForReplace: 'push',
-              animation: 'fade',
-            }}
-          />
+          <>
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{
+                animationTypeForReplace: 'push',
+                animation: 'fade',
+              }}
+            />
+            <Stack.Screen
+              name="InfoList"
+              component={InfoListScreen}
+              options={{
+                animation: 'slide_from_right',
+              }}
+            />
+          </>
         ) : (
           <Stack.Screen
             name="Login"
