@@ -4,9 +4,35 @@ import LinearGradient from 'react-native-linear-gradient';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import {RootStackParamList} from '../navigation/AppNavigator';
+import {ReadingMaterialContent} from '../types/ReadingMaterialItem';
 import BackIcon from '../components/icons/BackIcon';
+import ArticleTextBlock from '../components/articleContent/ArticleTextBlock';
 
 type ArticleDetailRouteProp = RouteProp<RootStackParamList, 'ArticleDetail'>;
+
+const renderContentBlock = (block: ReadingMaterialContent, index: number) => {
+  switch (block.type) {
+    case 'text':
+      return (
+        <ArticleTextBlock
+          key={index}
+          title={block.title}
+          desc={block.desc}
+          linkTexts={block.linkTexts}
+          isAutoLink={block.isAutoLink}
+        />
+      );
+    default:
+      return (
+        <View key={index} style={styles.debugBlock}>
+          <Text style={styles.debugType}>[{block.type}]</Text>
+          <Text style={styles.debugJson}>
+            {JSON.stringify(block, null, 2)}
+          </Text>
+        </View>
+      );
+  }
+};
 
 const ArticleDetailScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -37,14 +63,7 @@ const ArticleDetailScreen: React.FC = () => {
           {paddingBottom: Math.max(insets.bottom, 20)},
         ]}
         showsVerticalScrollIndicator={false}>
-        {article.content.map((block, index) => (
-          <View key={index} style={styles.debugBlock}>
-            <Text style={styles.debugType}>[{block.type}]</Text>
-            <Text style={styles.debugJson}>
-              {JSON.stringify(block, null, 2)}
-            </Text>
-          </View>
-        ))}
+        {article.content.map(renderContentBlock)}
       </ScrollView>
     </LinearGradient>
   );
@@ -70,7 +89,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 16,
     paddingHorizontal: 20,
-    gap: 12,
+    gap: 16,
   },
   debugBlock: {
     backgroundColor: 'rgba(255,255,255,0.6)',
