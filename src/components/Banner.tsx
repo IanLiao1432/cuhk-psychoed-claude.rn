@@ -126,13 +126,14 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     position: 'absolute',
+    top: 221.67,
     left: 24,
     bottom: 38,
     gap: 2,
   },
   titleBadge: {
     paddingHorizontal: 8,
-    paddingVertical: 5,
+    paddingVertical: 0,
     borderRadius: 41,
     alignSelf: 'flex-start',
   },
