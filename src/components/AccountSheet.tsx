@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,11 @@ import {
   StyleSheet,
   Alert,
   Image,
-  Platform,
+  Animated,
 } from 'react-native';
 import Svg, {Path} from 'react-native-svg';
 import LinearGradient from 'react-native-linear-gradient';
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from '@react-native-community/datetimepicker';
+import DatePicker from 'react-native-date-picker';
 import {useAuth} from '../context/AuthContext';
 import {useWording} from '../context/WordingContext';
 import CalendarIcon from './icons/CalendarIcon';
@@ -43,39 +41,44 @@ const AccountSheet: React.FC<AccountSheetProps> = ({visible, onClose}) => {
   const {t} = useWording();
 
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [tempDate, setTempDate] = useState(new Date());
+  const [pickerDate, setPickerDate] = useState(new Date());
+  const pickerHeight = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(pickerHeight, {
+      toValue: showDatePicker ? 1 : 0,
+      duration: 250,
+      useNativeDriver: false,
+    }).start();
+  }, [showDatePicker, pickerHeight]);
 
   const handleDateRowPress = useCallback(() => {
     if (showDatePicker) {
+      setShowDatePicker(false);
       return;
     }
     const existing = state.user?.treatmentDate;
-    setTempDate(existing ? new Date(existing) : new Date());
+    setPickerDate(existing ? new Date(existing) : new Date());
     setShowDatePicker(true);
   }, [showDatePicker, state.user?.treatmentDate]);
 
-  const handleDateChange = useCallback(
-    (_event: DateTimePickerEvent, selectedDate?: Date) => {
-      if (selectedDate) {
-        setTempDate(selectedDate);
-      }
-    },
-    [],
-  );
+  const handleDateChange = useCallback((date: Date) => {
+    setPickerDate(date);
+  }, []);
 
   const handleDateCancel = useCallback(() => {
     setShowDatePicker(false);
   }, []);
 
   const handleDateConfirm = useCallback(async () => {
+    setShowDatePicker(false);
     try {
-      const isoDate = tempDate.toISOString().split('T')[0];
+      const isoDate = pickerDate.toISOString().split('T')[0];
       await updateTreatmentDate(isoDate);
-      setShowDatePicker(false);
     } catch {
       Alert.alert('錯誤', '更新日期失敗，請稍後再試');
     }
-  }, [tempDate, updateTreatmentDate]);
+  }, [pickerDate, updateTreatmentDate]);
 
   const handleClose = useCallback(() => {
     setShowDatePicker(false);
@@ -175,15 +178,21 @@ const AccountSheet: React.FC<AccountSheetProps> = ({visible, onClose}) => {
         </View>
       </View>
 
-      {/* Date picker */}
-      {showDatePicker && (
+      {/* Date picker — always mounted, animated height to avoid Fabric unmount crash */}
+      <Animated.View
+        style={{
+          height: pickerHeight.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, 248],
+          }),
+          overflow: 'hidden',
+        }}>
         <View style={styles.datePickerSection}>
-          <DateTimePicker
-            value={tempDate}
+          <DatePicker
+            date={pickerDate}
             mode="date"
-            display={Platform.OS === 'ios' ? 'spinner' : 'spinner'}
             locale="zh-Hant"
-            onChange={handleDateChange}
+            onDateChange={handleDateChange}
             style={styles.datePicker}
           />
           <View style={styles.datePickerButtons}>
@@ -217,7 +226,7 @@ const AccountSheet: React.FC<AccountSheetProps> = ({visible, onClose}) => {
             </TouchableOpacity>
           </View>
         </View>
-      )}
+      </Animated.View>
 
       {/* Logout button */}
       <View style={styles.logoutContainer}>
