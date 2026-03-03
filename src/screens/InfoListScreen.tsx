@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useRef, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Linking,
   Alert,
+  Animated,
+  Easing,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Svg, {Circle, Rect, Line} from 'react-native-svg';
@@ -107,6 +109,111 @@ const SmallArrow = () => (
   </Svg>
 );
 
+interface AnimatedSectionProps {
+  section: Section;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onArticlePress: (article: Article) => void;
+  renderArticle: (article: Article, index: number, total: number) => React.ReactElement;
+}
+
+const ANIM_DURATION = 350;
+
+const AnimatedSection: React.FC<AnimatedSectionProps> = ({
+  section,
+  isExpanded,
+  onToggle,
+  renderArticle,
+}) => {
+  const animValue = useRef(new Animated.Value(isExpanded ? 1 : 0)).current;
+  const [shouldRender, setShouldRender] = useState(isExpanded);
+  const [contentHeight, setContentHeight] = useState(0);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (isExpanded) {
+      setShouldRender(true);
+    }
+
+    Animated.timing(animValue, {
+      toValue: isExpanded ? 1 : 0,
+      duration: ANIM_DURATION,
+      easing: isExpanded
+        ? Easing.out(Easing.bezier(0.25, 0.46, 0.45, 0.94))
+        : Easing.in(Easing.bezier(0.55, 0.06, 0.68, 0.19)),
+      useNativeDriver: false,
+    }).start(() => {
+      if (!isExpanded) {
+        setShouldRender(false);
+      }
+    });
+  }, [isExpanded, animValue]);
+
+  const height = animValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, contentHeight || 1],
+  });
+
+  const contentOpacity = animValue.interpolate({
+    inputRange: [0, 0.3, 1],
+    outputRange: [0, 0.2, 1],
+  });
+
+  const gapAnim = animValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 12],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.sectionCard,
+        isExpanded && styles.sectionCardExpanded,
+        shouldRender && {gap: gapAnim},
+      ]}>
+      <TouchableOpacity
+        style={styles.sectionHeader}
+        onPress={onToggle}
+        activeOpacity={0.7}>
+        <View style={styles.sectionHeaderLeft}>
+          <View style={styles.sectionNumber}>
+            <Text style={styles.sectionNumberBold}>{section.number}</Text>
+            <Text style={styles.sectionNumberSlash}>/</Text>
+          </View>
+          <View style={styles.sectionTitleGroup}>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+            <Text style={styles.sectionSubtitle}>{section.subtitle}</Text>
+          </View>
+        </View>
+        <CollapseIcon expanded={isExpanded} />
+      </TouchableOpacity>
+
+      {shouldRender && (
+        <Animated.View
+          style={[styles.articlesList, {height, opacity: contentOpacity}]}>
+          <View
+            style={styles.articlesContainer}
+            onLayout={e => {
+              const h = e.nativeEvent.layout.height;
+              if (h > 0 && h !== contentHeight) {
+                setContentHeight(h);
+              }
+            }}>
+            {section.articles.map((article, idx) =>
+              renderArticle(article, idx, section.articles.length),
+            )}
+          </View>
+        </Animated.View>
+      )}
+    </Animated.View>
+  );
+};
+
 const InfoListScreen: React.FC = () => {
   const {t} = useWording();
   const navigation = useNavigation();
@@ -165,44 +272,6 @@ const InfoListScreen: React.FC = () => {
     );
   };
 
-  const renderSection = (section: Section) => {
-    const isExpanded = expandedSections.has(section.number);
-    return (
-      <View
-        key={section.number}
-        style={[styles.sectionCard, isExpanded && styles.sectionCardExpanded]}>
-        {/* Section header */}
-        <TouchableOpacity
-          style={styles.sectionHeader}
-          onPress={() => toggleSection(section.number)}
-          activeOpacity={0.7}>
-          <View style={styles.sectionHeaderLeft}>
-            <View style={styles.sectionNumber}>
-              <Text style={styles.sectionNumberBold}>{section.number}</Text>
-              <Text style={styles.sectionNumberSlash}>/</Text>
-            </View>
-            <View style={styles.sectionTitleGroup}>
-              <Text style={styles.sectionTitle}>{section.title}</Text>
-              <Text style={styles.sectionSubtitle}>{section.subtitle}</Text>
-            </View>
-          </View>
-          <CollapseIcon expanded={isExpanded} />
-        </TouchableOpacity>
-
-        {/* Articles list */}
-        {isExpanded && (
-          <View style={styles.articlesList}>
-            <View style={styles.articlesContainer}>
-              {section.articles.map((article, idx) =>
-                renderArticle(article, idx, section.articles.length),
-              )}
-            </View>
-          </View>
-        )}
-      </View>
-    );
-  };
-
   return (
     <LinearGradient colors={['#FFEEF5', '#FFE8E8']} style={styles.container}>
       {/* Header */}
@@ -233,7 +302,16 @@ const InfoListScreen: React.FC = () => {
           {paddingBottom: Math.max(insets.bottom, 20)},
         ]}
         showsVerticalScrollIndicator={false}>
-        {SECTIONS.map(renderSection)}
+        {SECTIONS.map(section => (
+          <AnimatedSection
+            key={section.number}
+            section={section}
+            isExpanded={expandedSections.has(section.number)}
+            onToggle={() => toggleSection(section.number)}
+            onArticlePress={handleArticlePress}
+            renderArticle={renderArticle}
+          />
+        ))}
       </ScrollView>
     </LinearGradient>
   );
@@ -291,7 +369,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 16,
     elevation: 8,
-    gap: 12,
   },
 
   // Section header
@@ -342,7 +419,7 @@ const styles = StyleSheet.create({
 
   // Articles
   articlesList: {
-    // wrapper
+    overflow: 'hidden',
   },
   articlesContainer: {
     backgroundColor: '#FFFFFF',
