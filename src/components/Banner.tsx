@@ -1,6 +1,5 @@
 import React from 'react';
 import {View, Text, Image, StyleSheet, Animated, Dimensions} from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import {useWording} from '../context/WordingContext';
 

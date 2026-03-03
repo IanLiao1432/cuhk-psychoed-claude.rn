@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: 'transparent',
-    marginBottom: 16,
+    marginBottom: 8,
     overflow: 'hidden',
   },
   inputContainerError: {
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FF0000',
     textAlign: 'left',
-    marginBottom: 8,
+    marginBottom: 16,
   },
 
   // Button
