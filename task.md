@@ -27,18 +27,18 @@
 
 ## 3. HomeScreen
 
-| # | Task | Status | Description |
-|---|------|--------|-------------|
-| 7 | HomeScreen — Banner with logo & title | Done | Figma `0.1.0.0`. Shared Banner component with dancer image, ribbon, calligraphy title "乳房呵護 美麗綻放", and subtitle badges. |
-| 8 | HomeScreen — MenuCard: 實用資訊 → InfoListScreen | Done | Card with ArticleIcon, navigates to InfoListScreen with slide animation. |
+| # | Task | Status   | Description |
+|---|------|----------|-------------|
+| 7 | HomeScreen — Banner with logo & title | Done     | Figma `0.1.0.0`. Shared Banner component with dancer image, ribbon, calligraphy title "乳房呵護 美麗綻放", and subtitle badges. |
+| 8 | HomeScreen — MenuCard: 實用資訊 → InfoListScreen | Done     | Card with ArticleIcon, navigates to InfoListScreen with slide animation. |
 | 9 | HomeScreen — MenuCard: 價值觀探索練習 → ExerciseScreen | **TODO** | Card with QuestIcon, should navigate to ExerciseIntroScreen. Currently no navigation target exists. Wire up after Exercise screens are built. |
-| 10 | HomeScreen — ActionPill: 帳戶 → AccountSheet | Done | Pill button opening AccountSheet modal. |
-| 11 | HomeScreen — ActionPill: 聯絡 → ContactSheet | **TODO** | Figma `0.1.0.7`. Currently opens WhatsApp directly. Figma shows a bottom sheet modal titled "聯絡我們" with description text and a "WhatsApp 聯絡我們" button. Build a ContactSheet component similar to ForgetPasswordSheet. |
+| 10 | HomeScreen — ActionPill: 帳戶 → AccountSheet | Done     | Pill button opening AccountSheet modal. |
+| 11 | HomeScreen — ActionPill: 聯絡 → ContactSheet | Done     | Figma `0.1.0.7`. Currently opens WhatsApp directly. Figma shows a bottom sheet modal titled "聯絡我們" with description text and a "WhatsApp 聯絡我們" button. Build a ContactSheet component similar to ForgetPasswordSheet. |
 | 12 | HomeScreen — ActionPill: 關於 → AboutScreen | **TODO** | Figma `0.1.0.8`. Should navigate to or open a modal with "關於我們" content. See task #38. |
 | 13 | HomeScreen — Footer: 個人資料聲明 (Privacy) | **TODO** | Footer link that navigates to PrivacyScreen. Text link in footer area below university logos. |
 | 14 | HomeScreen — Footer: 免責聲明 (Disclaimer) | **TODO** | Footer link that navigates to DisclaimerScreen. Text link next to Privacy link. |
-| 15 | HomeScreen — University logos & copyright | Done | Three SVG logos (CUHK, CU Medicine, school) with copyright text. |
-| 16 | HomeScreen — animated entrance (stagger) | Done | Stagger animation on mount. |
+| 15 | HomeScreen — University logos & copyright | Done     | Three SVG logos (CUHK, CU Medicine, school) with copyright text. |
+| 16 | HomeScreen — animated entrance (stagger) | Done     | Stagger animation on mount. |
 | 17 | HomeScreen — Set Treatment Date Prompt | **TODO** | Figma `0.1.0.1`. First-time user prompt modal "請輸入手術日期" with description, "支援" (WhatsApp) button, "輸入日期" button, plus a sticky bottom bar showing "輸入手術日期 >" and "稍後設定". Appears when user has no treatment date set. |
 
 ---

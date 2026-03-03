@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Alert,
   Animated,
-  Linking,
   Image,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -23,6 +22,8 @@ import QuestIcon from '../components/icons/QuestIcon';
 import ContactIcon from '../components/icons/ContactIcon';
 import AboutIcon from '../components/icons/AboutIcon';
 import AccountSheet from '../components/AccountSheet';
+import ContactSheet from '../components/ContactSheet';
+import AboutSheet from '../components/AboutSheet';
 import logoCuhkSvg from '../assets/svg/logo_cuhk';
 import logoMediSvg from '../assets/svg/logo_medi';
 import logoSchoolSvg from '../assets/svg/logo_school';
@@ -31,6 +32,8 @@ const HomeScreen: React.FC = () => {
   const {t} = useWording();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [showAccountSheet, setShowAccountSheet] = useState(false);
+  const [showContactSheet, setShowContactSheet] = useState(false);
+  const [showAboutSheet, setShowAboutSheet] = useState(false);
 
   // Animations
   const bannerOpacity = useRef(new Animated.Value(0)).current;
@@ -69,16 +72,9 @@ const HomeScreen: React.FC = () => {
     setShowAccountSheet(true);
   }, []);
 
-  const handleContact = useCallback(() => {
-    const phone = t('whatsappNumber', '85267386349');
-    const message = encodeURIComponent(
-      t(
-        'whatsappMessage',
-        '你好。我有一些有關使用應用程式時遇到的問題想查詢：',
-      ),
-    );
-    Linking.openURL(`https://wa.me/${phone}?text=${message}`);
-  }, [t]);
+  const handleContactPress = useCallback(() => {
+    setShowContactSheet(true);
+  }, []);
 
   return (
     <LinearGradient colors={['#FFEEF5', '#FFE8E8']} style={styles.container}>
@@ -128,12 +124,12 @@ const HomeScreen: React.FC = () => {
           <ActionPill
             icon={<ContactIcon size={16} color="#9E619B" />}
             label={t('homeContact', '聯絡')}
-            onPress={handleContact}
+            onPress={handleContactPress}
           />
           <ActionPill
             icon={<AboutIcon size={16} color="#9E619B" />}
             label={t('homeAbout', '關於')}
-            onPress={() => Alert.alert('Coming Soon')}
+            onPress={() => setShowAboutSheet(true)}
           />
         </Animated.View>
 
@@ -167,6 +163,14 @@ const HomeScreen: React.FC = () => {
       <AccountSheet
         visible={showAccountSheet}
         onClose={() => setShowAccountSheet(false)}
+      />
+      <ContactSheet
+        visible={showContactSheet}
+        onClose={() => setShowContactSheet(false)}
+      />
+      <AboutSheet
+        visible={showAboutSheet}
+        onClose={() => setShowAboutSheet(false)}
       />
     </LinearGradient>
   );
