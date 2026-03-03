@@ -20,7 +20,11 @@
       "Bash(node -e:*)",
       "Bash(node:*)",
       "Bash(wc:*)",
-      "Bash(npx svgo:*)"
+      "Bash(npx svgo:*)",
+      "mcp__claude_ai_Figma__get_metadata",
+      "mcp__claude_ai_Figma__whoami",
+      "mcp__figma-remote-mcp__get_metadata",
+      "mcp__figma-remote-mcp__get_screenshot"
     ]
   }
 }

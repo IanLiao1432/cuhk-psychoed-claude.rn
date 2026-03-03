@@ -357,6 +357,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   titleRow: {
+    paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
