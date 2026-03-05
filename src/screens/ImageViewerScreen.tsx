@@ -1,19 +1,19 @@
-import React, {useEffect, useRef, useCallback} from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
-  View,
+  Animated,
   Image,
   ScrollView,
-  TouchableOpacity,
-  StyleSheet,
   StatusBar,
-  Animated,
+  StyleSheet,
+  TouchableOpacity,
   useWindowDimensions,
+  View,
 } from 'react-native';
-import Svg, {Line} from 'react-native-svg';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import Svg, { Line } from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Orientation from 'react-native-orientation-locker';
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
-import type {RootStackParamList} from '../navigation/AppNavigator';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/AppNavigator';
 
 const CloseIcon = () => (
   <Svg width={32} height={32} viewBox="0 0 32 32" fill="none">
@@ -40,9 +40,9 @@ const CloseIcon = () => (
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ImageViewer'>;
 
-const ImageViewerScreen: React.FC<Props> = ({route, navigation}) => {
-  const {images, initialIndex = 0} = route.params;
-  const {width, height} = useWindowDimensions();
+const ImageViewerScreen: React.FC<Props> = ({ route, navigation }) => {
+  const { images, initialIndex = 0 } = route.params;
+  const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -83,24 +83,26 @@ const ImageViewerScreen: React.FC<Props> = ({route, navigation}) => {
   return (
     <View style={styles.container}>
       <StatusBar hidden />
-      <Animated.View style={[styles.content, {opacity: fadeAnim}]}>
+      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
         <ScrollView
           maximumZoomScale={5}
           minimumZoomScale={1}
           centerContent
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}>
+          contentContainerStyle={styles.scrollContent}
+        >
           <Image
-            source={{uri: images[initialIndex].uri}}
-            style={{width, height}}
+            source={{ uri: images[initialIndex].uri }}
+            style={{ width, height }}
             resizeMode="contain"
           />
         </ScrollView>
         <TouchableOpacity
-          style={[styles.closeButton, {top: insets.top, right: insets.right + 20}]}
+          style={[styles.closeButton, { right: insets.right + 20 }]}
           onPress={handleClose}
-          activeOpacity={0.7}>
+          activeOpacity={0.7}
+        >
           <CloseIcon />
         </TouchableOpacity>
       </Animated.View>
@@ -125,6 +127,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 44,
     height: 44,
+    top: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
