@@ -1,6 +1,19 @@
 import React from 'react';
-import {View, Image, Text, StyleSheet, useWindowDimensions} from 'react-native';
+import {View, Image, Text, TouchableOpacity, StyleSheet, useWindowDimensions} from 'react-native';
+import Svg, {Circle, Line, G} from 'react-native-svg';
 import {GOOGLE_CLOUD_STORAGE_BUCKET} from '@env';
+import {useWording} from '../../context/WordingContext';
+
+const MagnifyIcon = () => (
+  <Svg width={20} height={20} viewBox="0 0 20 20" fill="none">
+    <G>
+      <Circle cx={9} cy={9} r={6.5} stroke="#6E1E6F" strokeWidth={2} fill="none" />
+      <Line x1={14} y1={14} x2={18} y2={18} stroke="#6E1E6F" strokeWidth={2} strokeLinecap="round" />
+      <Line x1={6} y1={9} x2={12} y2={9} stroke="#6E1E6F" strokeWidth={2} strokeLinecap="round" />
+      <Line x1={9} y1={6} x2={9} y2={12} stroke="#6E1E6F" strokeWidth={2} strokeLinecap="round" />
+    </G>
+  </Svg>
+);
 
 interface ArticleImageBlockProps {
   imageUrl: string;
@@ -17,12 +30,14 @@ interface ArticleImageBlockProps {
 const ArticleImageBlock: React.FC<ArticleImageBlockProps> = ({
   imageUrl,
   imageTitle,
+  isShowMagnifying,
   aspectRatio,
   isFullWidth,
   isNoPadding,
   isPlaceCenter,
   imageWidthRatio,
 }) => {
+  const {t} = useWording();
   const {width: screenWidth} = useWindowDimensions();
   const contentWidth = screenWidth - 40; // 20px padding each side
   const containerPadding = isNoPadding ? 0 : 16;
@@ -64,6 +79,14 @@ const ArticleImageBlock: React.FC<ArticleImageBlockProps> = ({
           resizeMode="contain"
         />
       </View>
+      {isShowMagnifying && (
+        <TouchableOpacity style={styles.magnifyButton} activeOpacity={0.7}>
+          <MagnifyIcon />
+          <Text style={styles.magnifyText}>
+            {t('magnifyButton', '放大顯示')}
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -89,6 +112,17 @@ const styles = StyleSheet.create({
   },
   image: {
     borderRadius: 8,
+  },
+  magnifyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 4,
+  },
+  magnifyText: {
+    fontWeight: '700',
+    fontSize: 14,
+    color: '#6E1E6F',
   },
 });
 

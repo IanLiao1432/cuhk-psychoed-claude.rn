@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Linking, StyleSheet} from 'react-native';
+import {View, Text, Linking, StyleSheet} from 'react-native';
 import {IndentDescContent} from '../../types/ReadingMaterialItem';
 import RichText from './RichText';
 
@@ -8,7 +8,28 @@ interface ArticleIndentDescBlockProps {
   expandButtonText?: string;
 }
 
+const URL_REGEX = /(https?:\/\/[^\s]+)/g;
+
 const INDENT_UNIT = 20;
+
+const renderAutoLinkText = (desc: string) => {
+  const parts = desc.split(URL_REGEX);
+  return parts.map((part, i) => {
+    if (URL_REGEX.test(part)) {
+      // Reset lastIndex since we reuse the regex
+      URL_REGEX.lastIndex = 0;
+      return (
+        <Text
+          key={i}
+          style={styles.link}
+          onPress={() => Linking.openURL(part)}>
+          {part}
+        </Text>
+      );
+    }
+    return part;
+  });
+};
 
 const ArticleIndentDescBlock: React.FC<ArticleIndentDescBlockProps> = ({
   indentDescContent,
@@ -18,26 +39,26 @@ const ArticleIndentDescBlock: React.FC<ArticleIndentDescBlockProps> = ({
       {indentDescContent.map((item, index) => {
         const level = parseInt(item.indentLevel, 10) || 0;
         const marginLeft = level * INDENT_UNIT;
-        const isLink = item.link != null || item.isAutoLink;
-
-        const handlePress = () => {
-          if (item.link) {
-            Linking.openURL(item.link);
-          } else if (item.isAutoLink) {
-            Linking.openURL(item.desc);
-          }
-        };
+        const hasExplicitLink = item.link != null;
 
         return (
           <View key={index} style={[styles.row, {marginLeft}]}>
             {item.indentMarker.length > 0 && (
               <RichText style={styles.marker}>{item.indentMarker}</RichText>
             )}
-            <RichText
-              style={[styles.desc, isLink ? styles.link : undefined]}
-              onPress={isLink ? handlePress : undefined}>
-              {item.desc}
-            </RichText>
+            {hasExplicitLink ? (
+              <RichText
+                style={[styles.desc, styles.link]}
+                onPress={() => Linking.openURL(item.link!)}>
+                {item.desc}
+              </RichText>
+            ) : item.isAutoLink ? (
+              <Text style={styles.desc}>
+                {renderAutoLinkText(item.desc)}
+              </Text>
+            ) : (
+              <RichText style={styles.desc}>{item.desc}</RichText>
+            )}
           </View>
         );
       })}
@@ -68,7 +89,7 @@ const styles = StyleSheet.create({
     color: '#6E1E6F',
   },
   link: {
-    color: '#9E619B',
+    color: '#6E1E6F',
     textDecorationLine: 'underline',
   },
 });
