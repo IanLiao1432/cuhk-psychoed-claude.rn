@@ -13,6 +13,7 @@ import ArticleDescBlock from '../components/articleContent/ArticleDescBlock';
 import ArticleIndentDescBlock from '../components/articleContent/ArticleIndentDescBlock';
 import ArticleTable2Block from '../components/articleContent/ArticleTable2Block';
 import ArticleTable3Block from '../components/articleContent/ArticleTable3Block';
+import ArticleCarouselBlock from '../components/articleContent/ArticleCarouselBlock';
 
 type ArticleDetailRouteProp = RouteProp<RootStackParamList, 'ArticleDetail'>;
 
@@ -83,6 +84,13 @@ const renderContentBlock = (block: ReadingMaterialContent, index: number) => {
           isNoPadding={block.isNoPadding}
           isPlaceCenter={block.isPlaceCenter}
           imageWidthRatio={block.imageWidthRatio}
+        />
+      );
+    case 'carousel':
+      return (
+        <ArticleCarouselBlock
+          key={index}
+          content={block.content}
         />
       );
     default:

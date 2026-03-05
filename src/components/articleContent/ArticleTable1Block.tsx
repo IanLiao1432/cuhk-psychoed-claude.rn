@@ -1,6 +1,6 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
-import {TableRow3, IndentDescContent} from '../../types/ReadingMaterialItem';
+import { View, Text, StyleSheet } from 'react-native';
+import { TableRow3, IndentDescContent } from '../../types/ReadingMaterialItem';
 import StyledText from 'react-native-styled-text';
 
 interface ArticleTable1BlockProps {
@@ -21,7 +21,9 @@ const renderCellContent = (
     return <StyledText style={textStyle}>{cell}</StyledText>;
   }
   return cell.map((item, i) => (
-    <StyledText key={i} style={textStyle}>{item.desc}</StyledText>
+    <StyledText key={i} style={textStyle}>
+      {item.desc}
+    </StyledText>
   ));
 };
 
@@ -41,6 +43,13 @@ const ArticleTable1Block: React.FC<ArticleTable1BlockProps> = ({
   ) => {
     const isLast = rowIndex === (totalRows ?? 0) - 1;
     const isAlt = !isHeader && rowIndex != null && rowIndex % 2 === 1;
+    const hasCol2 =
+      row[1] != null &&
+      (typeof row[1] === 'string' ? row[1].length > 0 : row[1].length > 0);
+    const hasCol3 =
+      row[2] != null &&
+      (typeof row[2] === 'string' ? row[2].length > 0 : row[2].length > 0);
+    const firstCellFlex = !hasCol2 && !hasCol3;
 
     return (
       <View
@@ -50,28 +59,43 @@ const ArticleTable1Block: React.FC<ArticleTable1BlockProps> = ({
           isHeader && styles.titleRow,
           isAlt && styles.rowAlt,
           !isHeader && !isLast && styles.rowBorder,
-        ]}>
-        {/* Column 1: fixed width */}
-        <View style={styles.firstCell}>
+        ]}
+      >
+        {/* Column 1: fixed width, or flex if cols 2&3 empty */}
+        <View
+          style={
+            firstCellFlex
+              ? [styles.firstCell, { flex: 1, alignItems: 'flex-start' }]
+              : styles.firstCell
+          }
+        >
           {renderCellContent(
             row[0],
-            isHeader ? styles.headerCellText : styles.firstColText,
+            isHeader
+              ? styles.headerCellText
+              : firstCellFlex
+              ? styles.cellTextLeft
+              : styles.firstColText,
           )}
         </View>
         {/* Column 2: flex */}
-        <View style={styles.flexCell}>
-          {renderCellContent(
-            row[1],
-            isHeader ? styles.headerCellText : styles.cellText,
-          )}
-        </View>
+        {hasCol2 && (
+          <View style={styles.flexCell}>
+            {renderCellContent(
+              row[1],
+              isHeader ? styles.headerCellText : styles.cellText,
+            )}
+          </View>
+        )}
         {/* Column 3: flex */}
-        <View style={styles.flexCell}>
-          {renderCellContent(
-            row[2],
-            isHeader ? styles.headerCellText : styles.cellText,
-          )}
-        </View>
+        {hasCol3 && (
+          <View style={styles.flexCell}>
+            {renderCellContent(
+              row[2],
+              isHeader ? styles.headerCellText : styles.cellText,
+            )}
+          </View>
+        )}
       </View>
     );
   };
@@ -153,6 +177,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6E1E6F',
     textAlign: 'center',
+  },
+  cellTextLeft: {
+    fontWeight: '400',
+    fontSize: 14,
+    color: '#6E1E6F',
+    textAlign: 'left',
   },
 });
 
