@@ -1,7 +1,9 @@
 import React from 'react';
-import {Linking, StyleSheet} from 'react-native';
+import {Text, Linking, StyleSheet} from 'react-native';
 import StyledText from 'react-native-styled-text';
 import {LinkText} from '../../types/LinkText';
+
+const URL_REGEX = /(https?:\/\/[^\s]+)/g;
 
 interface ArticleDescBlockProps {
   desc?: string;
@@ -13,20 +15,50 @@ interface ArticleDescBlockProps {
 const ArticleDescBlock: React.FC<ArticleDescBlockProps> = ({
   desc,
   link,
+  isAutoLink,
 }) => {
   if (!desc || desc.length === 0) {
     return null;
   }
 
-  const handlePress = link
-    ? () => Linking.openURL(link)
-    : undefined;
+  const text = desc.replace(/<br\s*\/?>/gi, '\n');
 
+  // Explicit link: entire block is clickable
+  if (link) {
+    return (
+      <StyledText
+        style={[styles.desc, styles.link]}
+        onPress={() => Linking.openURL(link)}>
+        {text}
+      </StyledText>
+    );
+  }
+
+  // Auto-link: detect URLs in text and make only those tappable
+  if (isAutoLink) {
+    const parts = text.split(URL_REGEX);
+    return (
+      <Text style={styles.desc}>
+        {parts.map((part, index) =>
+          URL_REGEX.test(part) ? (
+            <Text
+              key={index}
+              style={styles.link}
+              onPress={() => Linking.openURL(part)}>
+              {part}
+            </Text>
+          ) : (
+            <Text key={index}>{part}</Text>
+          ),
+        )}
+      </Text>
+    );
+  }
+
+  // Plain text: not clickable
   return (
-    <StyledText
-      style={[styles.desc, link != null ? styles.link : undefined]}
-      onPress={handlePress}>
-      {desc.replace(/<br\s*\/?>/gi, '\n')}
+    <StyledText style={styles.desc}>
+      {text}
     </StyledText>
   );
 };
