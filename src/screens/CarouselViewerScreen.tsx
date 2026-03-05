@@ -94,7 +94,7 @@ const CarouselViewerScreen: React.FC<Props> = ({route, navigation}) => {
         {images[activeIndex]?.desc != null && images[activeIndex].desc!.length > 0 && (
           <Text style={styles.description}>{images[activeIndex].desc}</Text>
         )}
-        {images.length > 1 && (
+        {images.length > 0 && (
           <View style={styles.dotsContainer}>
             {images.map((_, index) => (
               <View
