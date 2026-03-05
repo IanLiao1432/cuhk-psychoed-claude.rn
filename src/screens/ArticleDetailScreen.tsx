@@ -7,6 +7,7 @@ import {RootStackParamList} from '../navigation/AppNavigator';
 import {ReadingMaterialContent} from '../types/ReadingMaterialItem';
 import BackIcon from '../components/icons/BackIcon';
 import ArticleTextBlock from '../components/articleContent/ArticleTextBlock';
+import ArticleTable1Block from '../components/articleContent/ArticleTable1Block';
 
 type ArticleDetailRouteProp = RouteProp<RootStackParamList, 'ArticleDetail'>;
 
@@ -20,6 +21,16 @@ const renderContentBlock = (block: ReadingMaterialContent, index: number) => {
           desc={block.desc}
           linkTexts={block.linkTexts}
           isAutoLink={block.isAutoLink}
+        />
+      );
+    case 'table1':
+      return (
+        <ArticleTable1Block
+          key={index}
+          table1Style={block.table1Style}
+          header={block.header}
+          title={block.title}
+          content={block.content}
         />
       );
     default:
