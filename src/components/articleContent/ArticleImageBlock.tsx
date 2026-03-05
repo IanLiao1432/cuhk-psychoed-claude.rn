@@ -45,48 +45,60 @@ const ArticleImageBlock: React.FC<ArticleImageBlockProps> = ({
     ? contentWidth
     : contentWidth - containerPadding * 2;
   const imageWidth = Math.min(
-    imageWidthRatio ? screenWidth * imageWidthRatio : availableWidth,
+    imageWidthRatio ? screenWidth * imageWidthRatio / 100 : availableWidth,
     availableWidth,
   );
 
   const uri = `${GOOGLE_CLOUD_STORAGE_BUCKET}/${imageUrl}`;
 
-  console.log('uri: ', uri)
   return (
     <View
       style={[
-        !isFullWidth && !isNoPadding && styles.container,
-        isFullWidth && styles.containerFullWidth,
+        styles.wrapper,
+        isPlaceCenter && styles.centered,
       ]}>
       {imageTitle != null && imageTitle.length > 0 && (
         <Text style={styles.title}>{imageTitle}</Text>
       )}
-      <View style={isPlaceCenter ? styles.centered : undefined}>
+      <View
+        style={[
+          (!isFullWidth && !isNoPadding) || isShowMagnifying
+            ? styles.container
+            : isFullWidth
+              ? styles.containerFullWidth
+              : undefined,
+        ]}>
         <Image
           source={{uri}}
           style={[
             styles.image,
+            {width: imageWidth, maxWidth: '100%'},
             aspectRatio != null
-              ? {width: imageWidth, aspectRatio}
-              : {width: imageWidth, height: imageWidth * 0.6},
+              ? {aspectRatio}
+              : {height: imageWidth * 0.6},
           ]}
           resizeMode="contain"
         />
+        {isShowMagnifying && (
+          <TouchableOpacity style={styles.magnifyButton} activeOpacity={0.7}>
+            <MagnifyIcon />
+            <Text style={styles.magnifyText}>
+              {t('magnifyButton', '放大顯示')}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
-      {isShowMagnifying && (
-        <TouchableOpacity style={styles.magnifyButton} activeOpacity={0.7}>
-          <MagnifyIcon />
-          <Text style={styles.magnifyText}>
-            {t('magnifyButton', '放大顯示')}
-          </Text>
-        </TouchableOpacity>
-      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  wrapper: {
+    gap: 12,
+  },
   container: {
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
