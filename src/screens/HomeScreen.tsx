@@ -24,6 +24,8 @@ import AboutIcon from '../components/icons/AboutIcon';
 import AccountSheet from '../components/AccountSheet';
 import ContactSheet from '../components/ContactSheet';
 import AboutSheet from '../components/AboutSheet';
+import PrivacySheet from '../components/PrivacySheet';
+import DisclaimerSheet from '../components/DisclaimerSheet';
 import logoCuhkSvg from '../assets/svg/logo_cuhk';
 import logoMediSvg from '../assets/svg/logo_medi';
 import logoSchoolSvg from '../assets/svg/logo_school';
@@ -34,6 +36,8 @@ const HomeScreen: React.FC = () => {
   const [showAccountSheet, setShowAccountSheet] = useState(false);
   const [showContactSheet, setShowContactSheet] = useState(false);
   const [showAboutSheet, setShowAboutSheet] = useState(false);
+  const [showPrivacySheet, setShowPrivacySheet] = useState(false);
+  const [showDisclaimerSheet, setShowDisclaimerSheet] = useState(false);
 
   // Animations
   const bannerOpacity = useRef(new Animated.Value(0)).current;
@@ -148,12 +152,12 @@ const HomeScreen: React.FC = () => {
           <View style={styles.footerLinks}>
             <Text
               style={styles.footerLink}
-              onPress={() => Alert.alert('Coming Soon')}>
+              onPress={() => setShowPrivacySheet(true)}>
               個人資料聲明
             </Text>
             <Text
               style={styles.footerLink}
-              onPress={() => Alert.alert('Coming Soon')}>
+              onPress={() => setShowDisclaimerSheet(true)}>
               免責聲明
             </Text>
           </View>
@@ -171,6 +175,14 @@ const HomeScreen: React.FC = () => {
       <AboutSheet
         visible={showAboutSheet}
         onClose={() => setShowAboutSheet(false)}
+      />
+      <PrivacySheet
+        visible={showPrivacySheet}
+        onClose={() => setShowPrivacySheet(false)}
+      />
+      <DisclaimerSheet
+        visible={showDisclaimerSheet}
+        onClose={() => setShowDisclaimerSheet(false)}
       />
     </LinearGradient>
   );

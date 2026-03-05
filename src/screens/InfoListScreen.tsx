@@ -65,7 +65,7 @@ interface AnimatedSectionProps {
   renderArticle: (article: ReadingMaterialItem, index: number, total: number) => React.ReactElement;
 }
 
-const ANIM_DURATION = 350;
+const ANIM_DURATION = 300;
 
 const AnimatedSection: React.FC<AnimatedSectionProps> = ({
   section,
@@ -91,9 +91,7 @@ const AnimatedSection: React.FC<AnimatedSectionProps> = ({
     Animated.timing(animValue, {
       toValue: isExpanded ? 1 : 0,
       duration: ANIM_DURATION,
-      easing: isExpanded
-        ? Easing.out(Easing.bezier(0.25, 0.46, 0.45, 0.94))
-        : Easing.in(Easing.bezier(0.55, 0.06, 0.68, 0.19)),
+      easing: Easing.bezier(0.4, 0.0, 0.2, 1),
       useNativeDriver: false,
     }).start(() => {
       if (!isExpanded) {
@@ -108,8 +106,8 @@ const AnimatedSection: React.FC<AnimatedSectionProps> = ({
   });
 
   const contentOpacity = animValue.interpolate({
-    inputRange: [0, 0.3, 1],
-    outputRange: [0, 0.2, 1],
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 0.6, 1],
   });
 
   const gapAnim = animValue.interpolate({
@@ -117,11 +115,24 @@ const AnimatedSection: React.FC<AnimatedSectionProps> = ({
     outputRange: [0, 12],
   });
 
+  const cardBgColor = animValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['rgba(255, 214, 212, 0.5)', 'rgba(255, 255, 255, 0.4)'],
+  });
+
+  const shadowOpacity = animValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
+
   return (
     <Animated.View
       style={[
         styles.sectionCard,
-        isExpanded && styles.sectionCardExpanded,
+        {
+          backgroundColor: cardBgColor,
+          shadowOpacity,
+        },
         shouldRender && {gap: gapAnim},
       ]}>
       <TouchableOpacity
@@ -175,13 +186,10 @@ const InfoListScreen: React.FC = () => {
 
   const toggleSection = useCallback((sectionNumber: number) => {
     setExpandedSections(prev => {
-      const next = new Set(prev);
-      if (next.has(sectionNumber)) {
-        next.delete(sectionNumber);
-      } else {
-        next.add(sectionNumber);
+      if (prev.has(sectionNumber)) {
+        return new Set();
       }
-      return next;
+      return new Set([sectionNumber]);
     });
   }, []);
 
@@ -306,18 +314,13 @@ const styles = StyleSheet.create({
 
   // Section card
   sectionCard: {
-    backgroundColor: 'rgba(255, 214, 212, 0.5)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.5)',
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 20,
-  },
-  sectionCardExpanded: {
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
     shadowColor: '#FFCECE',
     shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 1,
     shadowRadius: 16,
     elevation: 8,
   },
