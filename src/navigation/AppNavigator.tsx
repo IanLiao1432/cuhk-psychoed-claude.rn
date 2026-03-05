@@ -1,12 +1,14 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import BootSplash from 'react-native-bootsplash';
+import Orientation from 'react-native-orientation-locker';
 import {useAuth} from '../context/AuthContext';
 import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
 import InfoListScreen from '../screens/InfoListScreen';
 import ArticleDetailScreen from '../screens/ArticleDetailScreen';
+import ImageViewerScreen from '../screens/ImageViewerScreen';
 import {ReadingMaterialItem} from '../types/ReadingMaterialItem';
 
 export type RootStackParamList = {
@@ -14,12 +16,17 @@ export type RootStackParamList = {
   Home: undefined;
   InfoList: undefined;
   ArticleDetail: {article: ReadingMaterialItem};
+  ImageViewer: {images: {uri: string}[]; initialIndex?: number};
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator: React.FC = () => {
   const {state} = useAuth();
+
+  useEffect(() => {
+    Orientation.lockToPortrait();
+  }, []);
 
   if (state.isLoading) {
     return null;
@@ -50,6 +57,13 @@ const AppNavigator: React.FC = () => {
               component={ArticleDetailScreen}
               options={{
                 animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen
+              name="ImageViewer"
+              component={ImageViewerScreen}
+              options={{
+                animation: 'fade',
               }}
             />
           </>

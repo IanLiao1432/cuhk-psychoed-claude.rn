@@ -1,8 +1,11 @@
 import React from 'react';
 import {View, Image, Text, TouchableOpacity, StyleSheet, useWindowDimensions} from 'react-native';
 import Svg, {Circle, Line, G} from 'react-native-svg';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {GOOGLE_CLOUD_STORAGE_BUCKET} from '@env';
 import {useWording} from '../../context/WordingContext';
+import type {RootStackParamList} from '../../navigation/AppNavigator';
 
 const MagnifyIcon = () => (
   <Svg width={20} height={20} viewBox="0 0 20 20" fill="none">
@@ -38,6 +41,7 @@ const ArticleImageBlock: React.FC<ArticleImageBlockProps> = ({
   imageWidthRatio,
 }) => {
   const {t} = useWording();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {width: screenWidth} = useWindowDimensions();
   const contentWidth = screenWidth - 40; // 20px padding each side
   const containerPadding = isNoPadding ? 0 : 16;
@@ -80,7 +84,10 @@ const ArticleImageBlock: React.FC<ArticleImageBlockProps> = ({
           resizeMode="contain"
         />
         {isShowMagnifying && (
-          <TouchableOpacity style={styles.magnifyButton} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.magnifyButton}
+            activeOpacity={0.7}
+            onPress={() => navigation.navigate('ImageViewer', {images: [{uri}]})}>
             <MagnifyIcon />
             <Text style={styles.magnifyText}>
               {t('magnifyButton', '放大顯示')}
