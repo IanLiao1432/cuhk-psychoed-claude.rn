@@ -10,6 +10,7 @@ import ArticleTextBlock from '../components/articleContent/ArticleTextBlock';
 import ArticleTable1Block from '../components/articleContent/ArticleTable1Block';
 import ArticleImageBlock from '../components/articleContent/ArticleImageBlock';
 import ArticleDescBlock from '../components/articleContent/ArticleDescBlock';
+import ArticleIndentDescBlock from '../components/articleContent/ArticleIndentDescBlock';
 
 type ArticleDetailRouteProp = RouteProp<RootStackParamList, 'ArticleDetail'>;
 
@@ -33,6 +34,14 @@ const renderContentBlock = (block: ReadingMaterialContent, index: number) => {
           linkTexts={block.linkTexts}
           link={block.link}
           isAutoLink={block.isAutoLink}
+        />
+      );
+    case 'indentDesc':
+      return (
+        <ArticleIndentDescBlock
+          key={index}
+          indentDescContent={block.indentDescContent}
+          expandButtonText={block.expandButtonText}
         />
       );
     case 'table1':
