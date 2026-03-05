@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, Linking, StyleSheet} from 'react-native';
+import {View, Linking, StyleSheet} from 'react-native';
 import {IndentDescContent} from '../../types/ReadingMaterialItem';
 import RichText from './RichText';
 
@@ -31,7 +31,7 @@ const ArticleIndentDescBlock: React.FC<ArticleIndentDescBlockProps> = ({
         return (
           <View key={index} style={[styles.row, {marginLeft}]}>
             {item.indentMarker.length > 0 && (
-              <Text style={styles.marker}>{item.indentMarker}</Text>
+              <RichText style={styles.marker}>{item.indentMarker}</RichText>
             )}
             <RichText
               style={[styles.desc, isLink ? styles.link : undefined]}
