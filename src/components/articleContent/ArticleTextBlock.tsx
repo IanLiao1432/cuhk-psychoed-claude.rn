@@ -1,6 +1,8 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, StyleSheet} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import {LinkText} from '../../types/LinkText';
+import RichText from './RichText';
 
 interface ArticleTextBlockProps {
   title?: string;
@@ -14,12 +16,19 @@ const ArticleTextBlock: React.FC<ArticleTextBlockProps> = ({title, desc}) => {
     <View style={styles.container}>
       {title != null && title.length > 0 && (
         <View style={styles.titleRow}>
-          <View style={styles.bullet} />
-          <Text style={styles.title}>{title}</Text>
+          <View style={styles.titleBarWrap}>
+            <LinearGradient
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              colors={['#C0DCFF', '#F2AFFF', '#FFABA8']}
+              style={StyleSheet.absoluteFill}
+            />
+          </View>
+          <RichText style={styles.title}>{title}</RichText>
         </View>
       )}
       {desc != null && desc.length > 0 && (
-        <Text style={styles.desc}>{desc}</Text>
+        <RichText style={styles.desc}>{desc}</RichText>
       )}
     </View>
   );
@@ -28,6 +37,12 @@ const ArticleTextBlock: React.FC<ArticleTextBlockProps> = ({title, desc}) => {
 const styles = StyleSheet.create({
   container: {
     gap: 12,
+  },
+  titleBarWrap: {
+    width: 8,
+    alignSelf: 'stretch',
+    borderRadius: 13,
+    overflow: 'hidden',
   },
   titleRow: {
     flexDirection: 'row',
@@ -38,7 +53,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#6E1E6F',
+    overflow: 'hidden',
   },
   title: {
     flex: 1,
