@@ -44,9 +44,10 @@ const ArticleImageBlock: React.FC<ArticleImageBlockProps> = ({
   const availableWidth = isFullWidth
     ? contentWidth
     : contentWidth - containerPadding * 2;
-  const imageWidth = imageWidthRatio
-    ? availableWidth * imageWidthRatio
-    : availableWidth;
+  const imageWidth = Math.min(
+    imageWidthRatio ? screenWidth * imageWidthRatio : availableWidth,
+    availableWidth,
+  );
 
   const uri = `${GOOGLE_CLOUD_STORAGE_BUCKET}/${imageUrl}`;
 
@@ -60,20 +61,13 @@ const ArticleImageBlock: React.FC<ArticleImageBlockProps> = ({
       {imageTitle != null && imageTitle.length > 0 && (
         <Text style={styles.title}>{imageTitle}</Text>
       )}
-      <View
-        style={[
-          isPlaceCenter && styles.centered,
-          aspectRatio != null && {
-            width: imageWidth,
-            aspectRatio,
-          },
-        ]}>
+      <View style={isPlaceCenter ? styles.centered : undefined}>
         <Image
           source={{uri}}
           style={[
             styles.image,
             aspectRatio != null
-              ? {width: '100%', aspectRatio}
+              ? {width: imageWidth, aspectRatio}
               : {width: imageWidth, height: imageWidth * 0.6},
           ]}
           resizeMode="contain"
