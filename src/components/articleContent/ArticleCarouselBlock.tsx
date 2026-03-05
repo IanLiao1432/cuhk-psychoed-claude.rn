@@ -89,19 +89,21 @@ const ArticleCarouselBlock: React.FC<ArticleCarouselBlockProps> = ({
       {hasVideo && (
         <View style={styles.videoContainer}>
           <View style={styles.videoHeader}>
-            <LinearGradient
-              start={{x: 0, y: 0}}
-              end={{x: 1, y: 0}}
-              colors={[
-                'rgba(192,220,255,0.5)',
-                'rgba(242,175,255,0.5)',
-                'rgba(255,171,168,0.5)',
-              ]}
-              style={styles.badge}>
+            <View style={styles.badge}>
+              <LinearGradient
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 0}}
+                colors={[
+                  'rgba(192,220,255,0.5)',
+                  'rgba(242,175,255,0.5)',
+                  'rgba(255,171,168,0.5)',
+                ]}
+                style={StyleSheet.absoluteFill}
+              />
               <Text style={styles.badgeText}>
                 {t('videoBadge', '影片')}
               </Text>
-            </LinearGradient>
+            </View>
             {content.title != null && content.title.length > 0 && (
               <Text style={styles.videoTitle}>{content.title}</Text>
             )}
@@ -164,9 +166,10 @@ const styles = StyleSheet.create({
   },
   badge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 4,
+    paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
+    overflow: 'hidden',
   },
   badgeText: {
     fontWeight: '500',
