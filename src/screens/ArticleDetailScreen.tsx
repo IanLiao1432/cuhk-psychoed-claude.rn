@@ -12,6 +12,7 @@ import ArticleImageBlock from '../components/articleContent/ArticleImageBlock';
 import ArticleDescBlock from '../components/articleContent/ArticleDescBlock';
 import ArticleIndentDescBlock from '../components/articleContent/ArticleIndentDescBlock';
 import ArticleTable2Block from '../components/articleContent/ArticleTable2Block';
+import ArticleTable3Block from '../components/articleContent/ArticleTable3Block';
 
 type ArticleDetailRouteProp = RouteProp<RootStackParamList, 'ArticleDetail'>;
 
@@ -59,6 +60,14 @@ const renderContentBlock = (block: ReadingMaterialContent, index: number) => {
       return (
         <ArticleTable2Block
           key={index}
+          content={block.content}
+        />
+      );
+    case 'table3':
+      return (
+        <ArticleTable3Block
+          key={index}
+          title={block.title}
           content={block.content}
         />
       );

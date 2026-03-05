@@ -6,7 +6,7 @@ import {
   IndentDescContent,
 } from '../../types/ReadingMaterialItem';
 import {GOOGLE_CLOUD_STORAGE_BUCKET} from '@env';
-import RichText from './RichText';
+import StyledText from 'react-native-styled-text';
 
 interface ArticleTable2BlockProps {
   content: (TableRowWithImage | TableRowIndent2)[];
@@ -25,9 +25,9 @@ const renderIndentContent = (items: IndentDescContent[]) => (
       return (
         <View key={i} style={[styles.indentRow, {marginLeft: level * 12}]}>
           {item.indentMarker.length > 0 && (
-            <RichText style={styles.indentMarker}>{item.indentMarker}</RichText>
+            <StyledText style={styles.indentMarker}>{item.indentMarker}</StyledText>
           )}
-          <RichText style={styles.indentDesc}>{item.desc}</RichText>
+          <StyledText style={styles.indentDesc}>{item.desc}</StyledText>
         </View>
       );
     })}

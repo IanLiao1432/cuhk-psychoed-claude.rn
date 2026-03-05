@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, Linking, StyleSheet} from 'react-native';
 import {IndentDescContent} from '../../types/ReadingMaterialItem';
-import RichText from './RichText';
+import StyledText from 'react-native-styled-text';
 
 interface ArticleIndentDescBlockProps {
   indentDescContent: IndentDescContent[];
@@ -44,20 +44,20 @@ const ArticleIndentDescBlock: React.FC<ArticleIndentDescBlockProps> = ({
         return (
           <View key={index} style={[styles.row, {marginLeft}]}>
             {item.indentMarker.length > 0 && (
-              <RichText style={styles.marker}>{item.indentMarker}</RichText>
+              <StyledText style={styles.marker}>{item.indentMarker}</StyledText>
             )}
             {hasExplicitLink ? (
-              <RichText
+              <StyledText
                 style={[styles.desc, styles.link]}
                 onPress={() => Linking.openURL(item.link!)}>
                 {item.desc}
-              </RichText>
+              </StyledText>
             ) : item.isAutoLink ? (
               <Text style={styles.desc}>
                 {renderAutoLinkText(item.desc)}
               </Text>
             ) : (
-              <RichText style={styles.desc}>{item.desc}</RichText>
+              <StyledText style={styles.desc}>{item.desc}</StyledText>
             )}
           </View>
         );

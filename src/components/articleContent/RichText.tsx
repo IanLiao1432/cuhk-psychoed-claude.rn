@@ -13,6 +13,7 @@ interface StyledSegment {
   underline?: boolean;
   sup?: boolean;
   sub?: boolean;
+  warm?: boolean;
   lineBreak?: boolean;
 }
 
@@ -25,7 +26,7 @@ const parseHtml = (html: string): StyledSegment[] => {
   const tagStack: string[] = [];
 
   // Split on HTML tags, keeping the tags as separate tokens
-  const tokens = html.split(/(<\/?(?:b|i|u|br|sup|sub)\s*\/?>)/i);
+  const tokens = html.split(/(<\/?(?:b|i|u|br|sup|sub|Warm)\s*\/?>)/i);
 
   for (const token of tokens) {
     if (!token) {
@@ -39,16 +40,17 @@ const parseHtml = (html: string): StyledSegment[] => {
     }
 
     // Check for opening tag
-    const openMatch = token.match(/^<(b|i|u|sup|sub)>$/i);
+    const openMatch = token.match(/^<(b|i|u|sup|sub|Warm)>$/);
     if (openMatch) {
-      tagStack.push(openMatch[1].toLowerCase());
+      const tag = openMatch[1] === 'Warm' ? 'Warm' : openMatch[1].toLowerCase();
+      tagStack.push(tag);
       continue;
     }
 
     // Check for closing tag
-    const closeMatch = token.match(/^<\/(b|i|u|sup|sub)>$/i);
+    const closeMatch = token.match(/^<\/(b|i|u|sup|sub|Warm)>$/);
     if (closeMatch) {
-      const tag = closeMatch[1].toLowerCase();
+      const tag = closeMatch[1] === 'Warm' ? 'Warm' : closeMatch[1].toLowerCase();
       const idx = tagStack.lastIndexOf(tag);
       if (idx !== -1) {
         tagStack.splice(idx, 1);
@@ -64,6 +66,7 @@ const parseHtml = (html: string): StyledSegment[] => {
       underline: tagStack.includes('u'),
       sup: tagStack.includes('sup'),
       sub: tagStack.includes('sub'),
+      warm: tagStack.includes('Warm'),
     });
   }
 
@@ -102,6 +105,9 @@ const RichText: React.FC<RichTextProps> = ({children, style, onPress}) => {
         if (seg.sub) {
           segStyle.fontSize = styles.sub.fontSize;
           segStyle.lineHeight = styles.sub.lineHeight;
+        }
+        if (seg.warm) {
+          segStyle.color = '#E97132';
         }
 
         const hasStyle = Object.keys(segStyle).length > 0;

@@ -1,8 +1,8 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import StyledText from 'react-native-styled-text';
 import {LinkText} from '../../types/LinkText';
-import RichText from './RichText';
 
 interface ArticleTextBlockProps {
   title?: string;
@@ -10,6 +10,14 @@ interface ArticleTextBlockProps {
   linkTexts?: LinkText[];
   isAutoLink?: boolean;
 }
+
+const customTextStyles = StyleSheet.create({
+  warm: {color: '#E97132'},
+  sup: {fontSize: 10, lineHeight: 14},
+  sub: {fontSize: 10, lineHeight: 14},
+});
+
+const preprocessBr = (text: string) => text.replace(/<br\s*\/?>/gi, '\n');
 
 const ArticleTextBlock: React.FC<ArticleTextBlockProps> = ({title, desc}) => {
   return (
@@ -24,11 +32,15 @@ const ArticleTextBlock: React.FC<ArticleTextBlockProps> = ({title, desc}) => {
               style={StyleSheet.absoluteFill}
             />
           </View>
-          <RichText style={styles.title}>{title}</RichText>
+          <StyledText style={styles.title} textStyles={customTextStyles}>
+            {preprocessBr(title)}
+          </StyledText>
         </View>
       )}
       {desc != null && desc.length > 0 && (
-        <RichText style={styles.desc}>{desc}</RichText>
+        <StyledText style={styles.desc} textStyles={customTextStyles}>
+          {preprocessBr(desc)}
+        </StyledText>
       )}
     </View>
   );

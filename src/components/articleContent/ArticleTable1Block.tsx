@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {TableRow3, IndentDescContent} from '../../types/ReadingMaterialItem';
-import RichText from './RichText';
+import StyledText from 'react-native-styled-text';
 
 interface ArticleTable1BlockProps {
   table1Style?: 'normal' | 'white' | (string & {});
@@ -11,14 +11,17 @@ interface ArticleTable1BlockProps {
 }
 
 const renderCellContent = (
-  cell: string | IndentDescContent[],
+  cell: string | IndentDescContent[] | undefined,
   textStyle: object,
 ) => {
+  if (cell == null) {
+    return null;
+  }
   if (typeof cell === 'string') {
-    return <RichText style={textStyle}>{cell}</RichText>;
+    return <StyledText style={textStyle}>{cell}</StyledText>;
   }
   return cell.map((item, i) => (
-    <RichText key={i} style={textStyle}>{item.desc}</RichText>
+    <StyledText key={i} style={textStyle}>{item.desc}</StyledText>
   ));
 };
 
@@ -79,7 +82,7 @@ const ArticleTable1Block: React.FC<ArticleTable1BlockProps> = ({
         <Text style={styles.header}>{header}</Text>
       )}
       <View style={[styles.table, isWhite && styles.tableWhite]}>
-        {renderRow(title, true)}
+        {title != null && title.length > 0 && renderRow(title, true)}
         {content.map((row, i) => renderRow(row, false, i, content.length))}
       </View>
     </View>

@@ -1,7 +1,7 @@
 import React from 'react';
 import {Linking, StyleSheet} from 'react-native';
+import StyledText from 'react-native-styled-text';
 import {LinkText} from '../../types/LinkText';
-import RichText from './RichText';
 
 interface ArticleDescBlockProps {
   desc?: string;
@@ -23,11 +23,11 @@ const ArticleDescBlock: React.FC<ArticleDescBlockProps> = ({
     : undefined;
 
   return (
-    <RichText
+    <StyledText
       style={[styles.desc, link != null ? styles.link : undefined]}
       onPress={handlePress}>
-      {desc}
-    </RichText>
+      {desc.replace(/<br\s*\/?>/gi, '\n')}
+    </StyledText>
   );
 };
 
