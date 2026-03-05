@@ -8,6 +8,7 @@ import {ReadingMaterialContent} from '../types/ReadingMaterialItem';
 import BackIcon from '../components/icons/BackIcon';
 import ArticleTextBlock from '../components/articleContent/ArticleTextBlock';
 import ArticleTable1Block from '../components/articleContent/ArticleTable1Block';
+import ArticleImageBlock from '../components/articleContent/ArticleImageBlock';
 
 type ArticleDetailRouteProp = RouteProp<RootStackParamList, 'ArticleDetail'>;
 
@@ -31,6 +32,20 @@ const renderContentBlock = (block: ReadingMaterialContent, index: number) => {
           header={block.header}
           title={block.title}
           content={block.content}
+        />
+      );
+    case 'image':
+      return (
+        <ArticleImageBlock
+          key={index}
+          imageUrl={block.imageUrl}
+          imageTitle={block.imageTitle}
+          aspectRatio={block.aspectRatio}
+          isShowMagnifying={block.isShowMagnifying}
+          isFullWidth={block.isFullWidth}
+          isNoPadding={block.isNoPadding}
+          isPlaceCenter={block.isPlaceCenter}
+          imageWidthRatio={block.imageWidthRatio}
         />
       );
     default:
