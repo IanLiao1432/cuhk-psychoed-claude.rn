@@ -14,6 +14,7 @@ import ArticleIndentDescBlock from '../components/articleContent/ArticleIndentDe
 import ArticleTable2Block from '../components/articleContent/ArticleTable2Block';
 import ArticleTable3Block from '../components/articleContent/ArticleTable3Block';
 import ArticleCarouselBlock from '../components/articleContent/ArticleCarouselBlock';
+import ArticleTable4Block from '../components/articleContent/ArticleTable4Block';
 
 type ArticleDetailRouteProp = RouteProp<RootStackParamList, 'ArticleDetail'>;
 
@@ -93,15 +94,24 @@ const renderContentBlock = (block: ReadingMaterialContent, index: number) => {
           content={block.content}
         />
       );
-    default:
+    case 'table4':
+      return (
+        <ArticleTable4Block
+          key={index}
+          content={block.content}
+        />
+      );
+    default: {
+      const unhandled = block as {type: string};
       return (
         <View key={index} style={styles.debugBlock}>
-          <Text style={styles.debugType}>[{block.type}]</Text>
+          <Text style={styles.debugType}>[{unhandled.type}]</Text>
           <Text style={styles.debugJson}>
             {JSON.stringify(block, null, 2)}
           </Text>
         </View>
       );
+    }
   }
 };
 
