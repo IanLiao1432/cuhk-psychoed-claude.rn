@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef, useCallback} from 'react';
 import {
   View,
   Image,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  Animated,
   useWindowDimensions,
 } from 'react-native';
 import Svg, {Line} from 'react-native-svg';
@@ -43,36 +44,66 @@ const ImageViewerScreen: React.FC<Props> = ({route, navigation}) => {
   const {images, initialIndex = 0} = route.params;
   const {width, height} = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Orientation.lockToLandscape();
+    // Delay orientation lock so the black modal is fully presented first
+    const timer = setTimeout(() => {
+      Orientation.lockToLandscape();
+    }, 50);
+
+    // Fade in after enough time for orientation to settle
+    const fadeTimer = setTimeout(() => {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    }, 500);
+
     return () => {
-      Orientation.lockToPortrait();
+      clearTimeout(timer);
+      clearTimeout(fadeTimer);
     };
-  }, []);
+  }, [fadeAnim]);
+
+  const handleClose = useCallback(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      Orientation.lockToPortrait();
+      setTimeout(() => {
+        navigation.goBack();
+      }, 300);
+    });
+  }, [fadeAnim, navigation]);
 
   return (
     <View style={styles.container}>
       <StatusBar hidden />
-      <ScrollView
-        maximumZoomScale={5}
-        minimumZoomScale={1}
-        centerContent
-        showsHorizontalScrollIndicator={false}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}>
-        <Image
-          source={{uri: images[initialIndex].uri}}
-          style={{width, height}}
-          resizeMode="contain"
-        />
-      </ScrollView>
-      <TouchableOpacity
-        style={[styles.closeButton, {top: insets.top + 20, right: insets.right + 20}]}
-        onPress={() => navigation.goBack()}
-        activeOpacity={0.7}>
-        <CloseIcon />
-      </TouchableOpacity>
+      <Animated.View style={[styles.content, {opacity: fadeAnim}]}>
+        <ScrollView
+          maximumZoomScale={5}
+          minimumZoomScale={1}
+          centerContent
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}>
+          <Image
+            source={{uri: images[initialIndex].uri}}
+            style={{width, height}}
+            resizeMode="contain"
+          />
+        </ScrollView>
+        <TouchableOpacity
+          style={[styles.closeButton, {top: insets.top, right: insets.right + 20}]}
+          onPress={handleClose}
+          activeOpacity={0.7}>
+          <CloseIcon />
+        </TouchableOpacity>
+      </Animated.View>
     </View>
   );
 };
@@ -82,6 +113,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
   },
+  content: {
+    ...StyleSheet.absoluteFillObject,
+  },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
@@ -89,8 +123,8 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: 'absolute',
-    width: 32,
-    height: 32,
+    width: 44,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
   },

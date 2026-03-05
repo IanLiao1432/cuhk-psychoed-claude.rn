@@ -63,7 +63,8 @@ const AppNavigator: React.FC = () => {
               name="ImageViewer"
               component={ImageViewerScreen}
               options={{
-                animation: 'fade',
+                presentation: 'fullScreenModal',
+                animation: 'none',
               }}
             />
           </>
