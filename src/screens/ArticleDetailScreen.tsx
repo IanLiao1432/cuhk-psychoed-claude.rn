@@ -9,6 +9,7 @@ import BackIcon from '../components/icons/BackIcon';
 import ArticleTextBlock from '../components/articleContent/ArticleTextBlock';
 import ArticleTable1Block from '../components/articleContent/ArticleTable1Block';
 import ArticleImageBlock from '../components/articleContent/ArticleImageBlock';
+import ArticleDescBlock from '../components/articleContent/ArticleDescBlock';
 
 type ArticleDetailRouteProp = RouteProp<RootStackParamList, 'ArticleDetail'>;
 
@@ -21,6 +22,16 @@ const renderContentBlock = (block: ReadingMaterialContent, index: number) => {
           title={block.title}
           desc={block.desc}
           linkTexts={block.linkTexts}
+          isAutoLink={block.isAutoLink}
+        />
+      );
+    case 'desc':
+      return (
+        <ArticleDescBlock
+          key={index}
+          desc={block.desc}
+          linkTexts={block.linkTexts}
+          link={block.link}
           isAutoLink={block.isAutoLink}
         />
       );

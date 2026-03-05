@@ -1,9 +1,9 @@
 import React from 'react';
-import {Text, TextStyle, StyleSheet} from 'react-native';
+import {Text, TextStyle, StyleSheet, TextProps} from 'react-native';
 
-interface RichTextProps {
+interface RichTextProps extends Pick<TextProps, 'onPress'> {
   children: string;
-  style?: TextStyle;
+  style?: TextStyle | (TextStyle | undefined)[];
 }
 
 interface StyledSegment {
@@ -70,16 +70,16 @@ const parseHtml = (html: string): StyledSegment[] => {
   return segments;
 };
 
-const RichText: React.FC<RichTextProps> = ({children, style}) => {
+const RichText: React.FC<RichTextProps> = ({children, style, onPress}) => {
   // Fast path: no HTML tags at all
   if (!/<\/?(?:b|i|u|br|sup|sub)\s*\/?>/.test(children)) {
-    return <Text style={style}>{children}</Text>;
+    return <Text style={style} onPress={onPress}>{children}</Text>;
   }
 
   const segments = parseHtml(children);
 
   return (
-    <Text style={style}>
+    <Text style={style} onPress={onPress}>
       {segments.map((seg, i) => {
         if (seg.lineBreak) {
           return '\n';
