@@ -11,9 +11,12 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Svg, {Circle, Line, G, Path} from 'react-native-svg';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ImageContent} from '../../types/ReadingMaterialItem';
 import {GOOGLE_CLOUD_STORAGE_BUCKET} from '@env';
 import {useWording} from '../../context/WordingContext';
+import type {RootStackParamList} from '../../navigation/AppNavigator';
 
 const PlayIcon = () => (
   <Svg width={56} height={56} viewBox="0 0 56 56" fill="none">
@@ -41,6 +44,7 @@ const ArticleCarouselBlock: React.FC<ArticleCarouselBlockProps> = ({
   content,
 }) => {
   const {t} = useWording();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const {width: screenWidth} = useWindowDimensions();
   const hasImages = content.images != null && content.images.length > 0;
   const hasVideo = content.youtubeId != null && content.youtubeId.length > 0;
@@ -76,7 +80,17 @@ const ArticleCarouselBlock: React.FC<ArticleCarouselBlockProps> = ({
               />
             ))}
           </ScrollView>
-          <TouchableOpacity style={styles.magnifyButton} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.magnifyButton}
+            activeOpacity={0.7}
+            onPress={() =>
+              navigation.navigate('CarouselViewer', {
+                images: content.images.map(img => ({
+                  uri: `${GOOGLE_CLOUD_STORAGE_BUCKET}/${img.imageUrl}`,
+                  desc: img.desc,
+                })),
+              })
+            }>
             <MagnifyIcon />
             <Text style={styles.magnifyText}>
               {t('magnifyButton', '放大顯示')}
