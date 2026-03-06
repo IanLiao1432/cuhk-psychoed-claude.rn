@@ -13,12 +13,16 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import Svg, {Circle, Rect, Line} from 'react-native-svg';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/AppNavigator';
 import {useWording} from '../context/WordingContext';
 import {getReadingMaterialGroups} from '../assets/staticContent/readingMaterialGroups';
 import {ReadingMaterialGroup, ReadingMaterialItem} from '../types/ReadingMaterialItem';
+import {
+  readingMaterialsService,
+  ReadingMaterialResponse,
+} from '../services/readingMaterialsService';
 import BackIcon from '../components/icons/BackIcon';
 import WhatsAppIcon from '../components/icons/WhatsAppIcon';
 
@@ -55,6 +59,20 @@ const SmallArrow = () => (
       strokeLinecap="round"
     />
   </Svg>
+);
+
+const LastReadTag = () => (
+  <View style={styles.lastReadTagRow}>
+    <View style={styles.lastReadTag}>
+      <LinearGradient
+        colors={['#C0DCFF', '#F2AFFF', '#FFABA8']}
+        start={{x: 0, y: 0.5}}
+        end={{x: 1, y: 0.5}}
+        style={StyleSheet.absoluteFill}
+      />
+      <Text style={styles.lastReadTagText}>上一次閱讀</Text>
+    </View>
+  </View>
 );
 
 interface AnimatedSectionProps {
@@ -133,15 +151,19 @@ const AnimatedSection: React.FC<AnimatedSectionProps> = ({
           backgroundColor: cardBgColor,
           shadowOpacity,
         },
-        shouldRender && {gap: gapAnim},
-      ]}>
+        shouldRender && { gap: gapAnim },
+      ]}
+    >
       <TouchableOpacity
         style={styles.sectionHeader}
         onPress={onToggle}
-        activeOpacity={0.7}>
+        activeOpacity={0.7}
+      >
         <View style={styles.sectionHeaderLeft}>
           <View style={styles.sectionNumber}>
-            <Text style={styles.sectionNumberBold}>{section.sectionNumber}</Text>
+            <Text style={styles.sectionNumberBold}>
+              {section.sectionNumber}
+            </Text>
             <Text style={styles.sectionNumberSlash}>/</Text>
           </View>
           <View style={styles.sectionTitleGroup}>
@@ -154,18 +176,21 @@ const AnimatedSection: React.FC<AnimatedSectionProps> = ({
 
       {shouldRender && (
         <Animated.View
-          style={[styles.articlesList, {height, opacity: contentOpacity}]}>
+          style={[styles.articlesList, { height, opacity: contentOpacity }]}
+        >
           <View
-            style={styles.articlesContainer}
             onLayout={e => {
               const h = e.nativeEvent.layout.height;
               if (h > 0 && h !== contentHeight) {
                 setContentHeight(h);
               }
-            }}>
-            {section.items.map((item, idx) =>
-              renderArticle(item, idx, section.items.length),
-            )}
+            }}
+          >
+            <View style={styles.articlesContainer}>
+              {section.items.map((item, idx) =>
+                renderArticle(item, idx, section.items.length),
+              )}
+            </View>
           </View>
         </Animated.View>
       )}
@@ -181,8 +206,16 @@ const InfoListScreen: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<Set<number>>(
     new Set([1]),
   );
+  const [readingMaterials, setReadingMaterials] = useState<ReadingMaterialResponse[]>([]);
 
-  console.log(sections)
+  useFocusEffect(
+    useCallback(() => {
+      readingMaterialsService
+        .list()
+        .then(setReadingMaterials)
+        .catch(err => console.error('Failed to fetch reading materials:', err));
+    }, []),
+  );
 
   const toggleSection = useCallback((sectionNumber: number) => {
     setExpandedSections(prev => {
@@ -204,19 +237,32 @@ const InfoListScreen: React.FC = () => {
     Linking.openURL(`https://wa.me/${phone}?text=${message}`);
   }, [t]);
 
+  const lastEngagedStep = useMemo(() => {
+    const engaged = readingMaterials.filter(m => m.status === 'ENGAGED');
+    if (engaged.length === 0) {
+      return null;
+    }
+    engaged.sort(
+      (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    );
+    return engaged[0].step;
+  }, [readingMaterials]);
+
   const handleArticlePress = useCallback((item: ReadingMaterialItem) => {
     navigation.navigate('ArticleDetail', {article: item});
   }, [navigation]);
 
   const renderArticle = (item: ReadingMaterialItem, index: number, total: number) => {
     const isLast = index === total - 1;
+    const isLastEngaged = item.step === lastEngagedStep;
     return (
-      <TouchableOpacity
-        key={item.step}
-        style={[styles.articleRow, !isLast && styles.articleRowBorder]}
-        onPress={() => handleArticlePress(item)}
-        activeOpacity={0.7}>
-        <View style={styles.articleContent}>
+      <View key={item.step}>
+        {isLastEngaged && <LastReadTag />}
+        <TouchableOpacity
+          style={[styles.articleRow, !isLast && styles.articleRowBorder]}
+          onPress={() => handleArticlePress(item)}
+          activeOpacity={0.7}>
+          <View style={styles.articleContent}>
           <View style={styles.articleIconWrap}>
             <Image source={item.image} style={styles.articleIcon} resizeMode="contain" />
           </View>
@@ -228,6 +274,7 @@ const InfoListScreen: React.FC = () => {
           </View>
         </View>
       </TouchableOpacity>
+      </View>
     );
   };
 
@@ -379,6 +426,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     overflow: 'hidden',
+  },
+  lastReadTagRow: {
+    flexDirection: 'row',
+    paddingLeft: 16,
+    paddingTop: 12,
+  },
+  lastReadTag: {
+    overflow: 'hidden',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+  },
+  lastReadTagText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#6E1E6F',
   },
   articleRow: {
     paddingHorizontal: 16,

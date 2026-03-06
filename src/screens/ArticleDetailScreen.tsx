@@ -1,10 +1,20 @@
-import React from 'react';
-import {View, Text, ScrollView, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useEffect, useRef, useCallback} from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+  LayoutChangeEvent,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import {RootStackParamList} from '../navigation/AppNavigator';
 import {ReadingMaterialContent} from '../types/ReadingMaterialItem';
+import {readingMaterialsService} from '../services/readingMaterialsService';
 import BackIcon from '../components/icons/BackIcon';
 import ArticleTextBlock from '../components/articleContent/ArticleTextBlock';
 import ArticleTable1Block from '../components/articleContent/ArticleTable1Block';
@@ -115,11 +125,50 @@ const renderContentBlock = (block: ReadingMaterialContent, index: number) => {
   }
 };
 
+const REFERENCE_TITLE = '參考資料：';
+
 const ArticleDetailScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute<ArticleDetailRouteProp>();
   const insets = useSafeAreaInsets();
   const {article} = route.params;
+
+  const hasMarkedRead = useRef(false);
+  const referenceY = useRef<number | null>(null);
+  const scrollViewHeight = useRef(0);
+
+  // Find the index of the reference block
+  const referenceIndex = article.content.findIndex(
+    block => block.type === 'text' && block.title === REFERENCE_TITLE,
+  );
+
+  // Fire ENGAGED on mount
+  useEffect(() => {
+    readingMaterialsService
+      .upsert({step: article.step, status: 'ENGAGED'})
+      .catch(err => console.error('Failed to mark ENGAGED:', err));
+  }, [article.step]);
+
+  const handleReferenceLayout = useCallback((e: LayoutChangeEvent) => {
+    referenceY.current = e.nativeEvent.layout.y;
+  }, []);
+
+  const handleScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (hasMarkedRead.current || referenceY.current === null) {
+        return;
+      }
+      const {contentOffset, layoutMeasurement} = e.nativeEvent;
+      const bottomEdge = contentOffset.y + layoutMeasurement.height;
+      if (bottomEdge >= referenceY.current) {
+        hasMarkedRead.current = true;
+        readingMaterialsService
+          .upsert({step: article.step, status: 'READ'})
+          .catch(err => console.error('Failed to mark READ:', err));
+      }
+    },
+    [article.step],
+  );
 
   return (
     <LinearGradient colors={['#FFEEF5', '#FFE8E8']} style={styles.container}>
@@ -143,8 +192,16 @@ const ArticleDetailScreen: React.FC = () => {
           styles.scrollContent,
           {paddingBottom: Math.max(insets.bottom, 20)},
         ]}
-        showsVerticalScrollIndicator={false}>
-        {article.content.map(renderContentBlock)}
+        showsVerticalScrollIndicator={false}
+        onScroll={referenceIndex >= 0 ? handleScroll : undefined}
+        scrollEventThrottle={referenceIndex >= 0 ? 200 : undefined}>
+        {article.content.map((block, index) => (
+          <View
+            key={index}
+            onLayout={index === referenceIndex ? handleReferenceLayout : undefined}>
+            {renderContentBlock(block, index)}
+          </View>
+        ))}
       </ScrollView>
     </LinearGradient>
   );
