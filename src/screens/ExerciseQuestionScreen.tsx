@@ -189,7 +189,10 @@ const ExerciseQuestionScreen: React.FC = () => {
               <Text
                 style={[
                   styles.sliderValueText,
-                  { left: `${sliderValue}%`, marginLeft: -20 },
+                  {
+                    left: `${5 + (sliderValue / 111.1111) * 100}%`,
+                    marginLeft: -20,
+                  },
                 ]}
               >
                 {sliderValue}
@@ -205,21 +208,32 @@ const ExerciseQuestionScreen: React.FC = () => {
                 end={{ x: 1, y: 0.5 }}
                 style={styles.sliderTrack}
               >
-                {/* Dot markers — only visible on unfilled portion */}
-                {Array.from({ length: 11 }).map((_, i) => (
-                  <View
-                    key={i}
-                    style={[
-                      styles.sliderDot,
-                      i <= sliderValue / 10 && styles.sliderDotHidden,
-                    ]}
-                  />
-                ))}
+                <View
+                  style={{
+                    paddingHorizontal: 7,
+                    flexDirection: 'row',
+                    gap: 22.33,
+                  }}
+                >
+                  {Array.from({ length: 11 }).map((_, i) => (
+                    <View key={i} style={styles.sliderDot} />
+                  ))}
+                </View>
               </LinearGradient>
               {/* Filled track */}
-              <View style={[styles.sliderFill, { width: `${sliderValue}%` }]} />
+              <View
+                style={[
+                  styles.sliderFill,
+                  { width: `${5 + (sliderValue / 111.1111) * 100}%` },
+                ]}
+              />
               {/* Thumb */}
-              <View style={[styles.sliderThumb, { left: `${sliderValue}%` }]}>
+              <View
+                style={[
+                  styles.sliderThumb,
+                  { left: `${5 + (sliderValue / 111.1111) * 100}%` },
+                ]}
+              >
                 <View style={styles.sliderThumbInner} />
               </View>
             </View>
@@ -564,14 +578,11 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255,255,255,0.8)',
-  },
-  sliderDotHidden: {
-    opacity: 0,
+    backgroundColor: 'rgba(255,255,255,1)',
   },
   sliderFill: {
     position: 'absolute',
-    left: 0,
+    left: 7,
     bottom: (SLIDER_TRACK_HEIGHT - 8) / 2,
     height: 8,
     borderRadius: 27,
