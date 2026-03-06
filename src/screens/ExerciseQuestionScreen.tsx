@@ -19,6 +19,7 @@ import { useWording } from '../context/WordingContext';
 import { getQuestionnaire } from '../assets/staticContent/questionnaire';
 import CloseIcon from '../components/icons/CloseIcon';
 import { Option } from '../types/Option';
+import { GOOGLE_CLOUD_STORAGE_BUCKET } from '@env';
 
 const icBackPale = require('../assets/images/ic_back_pale.png');
 const icNextPale = require('../assets/images/ic_next_pale.png');
@@ -172,7 +173,7 @@ const ExerciseQuestionScreen: React.FC = () => {
             <LinearGradient
               colors={['#C0DCFF', '#F2AFFF', '#FFABA8']}
               start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
+              end={{ x: 1, y: 0 }}
               style={styles.promptBar}
             />
             <Text style={styles.promptText}>{currentQuestion.question}</Text>
@@ -320,10 +321,9 @@ interface ComparisonCardProps {
 }
 
 const ComparisonCard: React.FC<ComparisonCardProps> = ({ option }) => {
-  const baseUrl = 'https://www.relationapp.io';
   const imageUri = option.url.startsWith('http')
     ? option.url
-    : `${baseUrl}${option.url}`;
+    : `${GOOGLE_CLOUD_STORAGE_BUCKET}${option.url}`;
 
   return (
     <View style={styles.compCard}>
@@ -338,6 +338,7 @@ const ComparisonCard: React.FC<ComparisonCardProps> = ({ option }) => {
           source={{ uri: imageUri }}
           style={styles.compImage}
           resizeMode="contain"
+          onError={(e) => console.warn('Image load error:', imageUri, e.nativeEvent.error)}
         />
       </LinearGradient>
 
@@ -534,6 +535,7 @@ const styles = StyleSheet.create({
     width: 8,
     alignSelf: 'stretch',
     borderRadius: 13,
+    paddingVertical: 4,
   },
   promptText: {
     flex: 1,
@@ -620,8 +622,8 @@ const styles = StyleSheet.create({
   },
   sliderEndNumber: {
     fontWeight: '700',
-    fontSize: 14,
-    color: '#6E1E6F',
+    fontSize: 12,
+    color: '#9E619B',
   },
   sliderEndLabel: {
     fontWeight: '500',
