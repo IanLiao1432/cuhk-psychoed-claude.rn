@@ -4,7 +4,7 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  Alert,
+
   Animated,
   Image,
 } from 'react-native';
@@ -108,7 +108,7 @@ const HomeScreen: React.FC = () => {
           <MenuCard
             icon={<QuestIcon size={60} />}
             title={t('homeMenuExercise', '價值觀探索練習')}
-            onPress={() => Alert.alert('Coming Soon')}
+            onPress={() => navigation.navigate('ExerciseIntro')}
           />
         </Animated.View>
 

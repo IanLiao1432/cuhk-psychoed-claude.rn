@@ -10,6 +10,7 @@ import InfoListScreen from '../screens/InfoListScreen';
 import ArticleDetailScreen from '../screens/ArticleDetailScreen';
 import ImageViewerScreen from '../screens/ImageViewerScreen';
 import CarouselViewerScreen from '../screens/CarouselViewerScreen';
+import ExerciseIntroScreen from '../screens/ExerciseIntroScreen';
 import {ReadingMaterialItem} from '../types/ReadingMaterialItem';
 
 export type RootStackParamList = {
@@ -19,6 +20,7 @@ export type RootStackParamList = {
   ArticleDetail: {article: ReadingMaterialItem};
   ImageViewer: {images: {uri: string}[]; initialIndex?: number};
   CarouselViewer: {images: {uri: string; desc?: string}[]; initialIndex?: number};
+  ExerciseIntro: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -75,6 +77,13 @@ const AppNavigator: React.FC = () => {
               options={{
                 presentation: 'fullScreenModal',
                 animation: 'fade',
+              }}
+            />
+            <Stack.Screen
+              name="ExerciseIntro"
+              component={ExerciseIntroScreen}
+              options={{
+                animation: 'slide_from_right',
               }}
             />
           </>
