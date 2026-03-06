@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
+  Animated,
   Image,
   PanResponder,
   ScrollView,
@@ -164,8 +165,8 @@ const ExerciseQuestionScreen: React.FC = () => {
         <View style={styles.mainCard}>
           {/* Comparison cards */}
           <View style={styles.comparisonRow}>
-            <ComparisonCard option={currentQuestion.options[0]} />
-            <ComparisonCard option={currentQuestion.options[1]} />
+            <ComparisonCard key={`${currentIndex}-a`} option={currentQuestion.options[0]} />
+            <ComparisonCard key={`${currentIndex}-b`} option={currentQuestion.options[1]} delay={150} />
           </View>
 
           {/* Rating prompt */}
@@ -318,12 +319,36 @@ const ExerciseQuestionScreen: React.FC = () => {
 
 interface ComparisonCardProps {
   option: Option;
+  delay?: number;
 }
 
-const ComparisonCard: React.FC<ComparisonCardProps> = ({ option }) => {
+const ComparisonCard: React.FC<ComparisonCardProps> = ({ option, delay = 0 }) => {
   const imageUri = option.url.startsWith('http')
     ? option.url
     : `${GOOGLE_CLOUD_STORAGE_BUCKET}${option.url}`;
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const translateAnim = useRef(new Animated.Value(12)).current;
+
+  const handleImageLoad = useCallback(() => {
+    const anim = Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateAnim, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+    ]);
+    if (delay > 0) {
+      Animated.sequence([Animated.delay(delay), anim]).start();
+    } else {
+      anim.start();
+    }
+  }, [fadeAnim, translateAnim, delay]);
 
   return (
     <View style={styles.compCard}>
@@ -334,10 +359,14 @@ const ComparisonCard: React.FC<ComparisonCardProps> = ({ option }) => {
         colors={['#FFF4F4', '#FFFFFF']}
         style={styles.compImageBg}
       >
-        <Image
+        <Animated.Image
           source={{ uri: imageUri }}
-          style={styles.compImage}
+          style={[
+            styles.compImage,
+            { opacity: fadeAnim, transform: [{ translateY: translateAnim }] },
+          ]}
           resizeMode="contain"
+          onLoad={handleImageLoad}
           onError={(e) => console.warn('Image load error:', imageUri, e.nativeEvent.error)}
         />
       </LinearGradient>
