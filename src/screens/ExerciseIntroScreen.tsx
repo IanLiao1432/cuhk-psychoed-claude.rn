@@ -46,8 +46,8 @@ const ExerciseIntroScreen: React.FC = () => {
   }, [t]);
 
   const handleStart = useCallback(() => {
-    // TODO: navigate to ExerciseQuestion screen
-  }, []);
+    navigation.navigate('ExerciseQuestion');
+  }, [navigation]);
 
   return (
     <LinearGradient colors={['#FFEEF5', '#FFE8E8']} style={styles.container}>

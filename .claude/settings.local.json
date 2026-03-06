@@ -30,7 +30,8 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:www.npmjs.com)",
       "Bash(npx react-native-bootsplash:*)",
-      "Bash(xcodebuild:*)"
+      "Bash(xcodebuild:*)",
+      "WebFetch(domain:api.figma.com)"
     ]
   }
 }

@@ -1,9 +1,7 @@
-import { TFunction } from 'i18next';
-
-import Questionnaire from '~/types/Questionnaire';
+import Questionnaire from '../../types/Questionnaire.ts';
 
 export const getQuestionnaire = (
-  t: TFunction<'zh-HK', undefined>,
+  t: (key: string, fallback?: string) => string,
 ): Questionnaire[] => {
   return [
     {
