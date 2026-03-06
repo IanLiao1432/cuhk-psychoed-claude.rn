@@ -64,10 +64,9 @@ const ExerciseQuestionScreen: React.FC = () => {
     if (currentIndex < totalQuestions - 1) {
       setCurrentIndex(i => i + 1);
     } else {
-      // TODO: navigate to result/loading screen
-      navigation.goBack();
+      navigation.replace('ExerciseLoading', { answers });
     }
-  }, [currentIndex, totalQuestions, navigation]);
+  }, [currentIndex, totalQuestions, navigation, answers]);
 
   const handlePrev = useCallback(() => {
     if (currentIndex > 0) {

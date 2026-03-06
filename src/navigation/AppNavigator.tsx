@@ -12,7 +12,10 @@ import ImageViewerScreen from '../screens/ImageViewerScreen';
 import CarouselViewerScreen from '../screens/CarouselViewerScreen';
 import ExerciseIntroScreen from '../screens/ExerciseIntroScreen';
 import ExerciseQuestionScreen from '../screens/ExerciseQuestionScreen';
+import ExerciseLoadingScreen from '../screens/ExerciseLoadingScreen';
+import ExerciseResultScreen from '../screens/ExerciseResultScreen';
 import {ReadingMaterialItem} from '../types/ReadingMaterialItem';
+import {SurgicalPreference} from '../services/questionnaireService';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -23,6 +26,8 @@ export type RootStackParamList = {
   CarouselViewer: {images: {uri: string; desc?: string}[]; initialIndex?: number};
   ExerciseIntro: undefined;
   ExerciseQuestion: undefined;
+  ExerciseLoading: { answers: number[] };
+  ExerciseResult: { surgicalPreference: SurgicalPreference };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -93,6 +98,22 @@ const AppNavigator: React.FC = () => {
               component={ExerciseQuestionScreen}
               options={{
                 animation: 'slide_from_right',
+                gestureEnabled: false,
+              }}
+            />
+            <Stack.Screen
+              name="ExerciseLoading"
+              component={ExerciseLoadingScreen}
+              options={{
+                animation: 'fade',
+                gestureEnabled: false,
+              }}
+            />
+            <Stack.Screen
+              name="ExerciseResult"
+              component={ExerciseResultScreen}
+              options={{
+                animation: 'fade',
                 gestureEnabled: false,
               }}
             />

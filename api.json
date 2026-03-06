@@ -1,0 +1,877 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "BCT Aid HK APIs",
+    "description": "BCT Aid HK APIs",
+    "version": "1.0.0"
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "parameters": {
+      "pathIntId": {
+        "in": "path",
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "sortDir": {
+        "in": "query",
+        "name": "sortDir",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": ["ASC", "DESC"]
+        }
+      },
+      "limit": {
+        "in": "query",
+        "name": "limit",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 100
+        }
+      },
+      "offset": {
+        "in": "query",
+        "name": "offset",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 0
+        }
+      }
+    },
+    "schemas": {
+      "Admin": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 2
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/AdminCreate"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "updatedByAdminId": {
+                "type": "integer",
+                "example": 1
+              },
+              "updatedByAdmin": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 255,
+                    "example": "admin@redso.com.hk"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "RedSo Admin"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/CreatedAt"
+          },
+          {
+            "$ref": "#/components/schemas/UpdatedAt"
+          }
+        ]
+      },
+      "AdminAuthOTP": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 255,
+            "example": "admin@redso.com.hk"
+          },
+          "recaptcha": {
+            "type": "string"
+          }
+        },
+        "required": ["email", "recaptcha"]
+      },
+      "AdminCreate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AdminUpdate"
+          }
+        ],
+        "required": ["email", "name", "type"]
+      },
+      "AdminLogin": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "format": "email",
+                "maxLength": 255,
+                "example": "admin@redso.com.hk"
+              },
+              "otp": {
+                "type": "string",
+                "example": "123456"
+              }
+            }
+          }
+        ],
+        "required": ["email", "otp"]
+      },
+      "AdminType": {
+        "type": "string",
+        "enum": ["SUPER", "NORMAL"],
+        "example": "NORMAL"
+      },
+      "AdminUpdate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AdminUpdateMe"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "$ref": "#/components/schemas/AdminType"
+              },
+              "status": {
+                "$ref": "#/components/schemas/Status"
+              }
+            }
+          }
+        ]
+      },
+      "AdminUpdateMe": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 255,
+            "example": "admin@redso.com.hk"
+          },
+          "name": {
+            "type": "string",
+            "example": "RedSo Admin"
+          }
+        }
+      },
+      "AuthToken": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
+      "CommonListResProps": {
+        "type": "object",
+        "properties": {
+          "numResults": {
+            "type": "integer",
+            "description": "Number of total results",
+            "example": 5
+          }
+        }
+      },
+      "CreatedAt": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2000-01-01T00:00:00.000Z"
+          }
+        }
+      },
+      "Questionnaire": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "integer",
+                "example": 1
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/QuestionnaireUpsert"
+          },
+          {
+            "$ref": "#/components/schemas/CreatedAt"
+          },
+          {
+            "$ref": "#/components/schemas/UpdatedAt"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "surgicalPreference": {
+                "type": "object",
+                "properties": {
+                  "breastConservingSurgery": {
+                    "type": "object",
+                    "properties": {
+                      "score": {
+                        "type": "number",
+                        "example": 71.4
+                      },
+                      "percentage": {
+                        "type": "number",
+                        "example": 42.3
+                      }
+                    }
+                  },
+                  "mastectomyAndBreastReconstruction": {
+                    "type": "object",
+                    "properties": {
+                      "score": {
+                        "type": "number",
+                        "example": 36.8
+                      },
+                      "percentage": {
+                        "type": "number",
+                        "example": 21.8
+                      }
+                    }
+                  },
+                  "mastectomy": {
+                    "type": "object",
+                    "properties": {
+                      "score": {
+                        "type": "number",
+                        "example": 60.5
+                      },
+                      "percentage": {
+                        "type": "number",
+                        "example": 35.9
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "QuestionnaireUpsert": {
+        "type": "object",
+        "properties": {
+          "survivalRate": {
+            "type": "integer",
+            "example": 50
+          },
+          "sideEffect": {
+            "type": "integer",
+            "example": 50
+          },
+          "recoveryTime": {
+            "type": "integer",
+            "example": 50
+          },
+          "expense": {
+            "type": "integer",
+            "example": 50
+          },
+          "radiotherapy": {
+            "type": "integer",
+            "example": 50
+          },
+          "breastAppearance1": {
+            "type": "integer",
+            "example": 50
+          },
+          "breastAppearance2": {
+            "type": "integer",
+            "example": 50
+          }
+        },
+        "required": [
+          "survivalRate",
+          "sideEffect",
+          "recoveryTime",
+          "expense",
+          "radiotherapy",
+          "breastAppearance1",
+          "breastAppearance2"
+        ]
+      },
+      "ReadingMaterial": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "integer",
+                "example": 1
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/ReadingMaterialUpsert"
+          },
+          {
+            "$ref": "#/components/schemas/CreatedAt"
+          },
+          {
+            "$ref": "#/components/schemas/UpdatedAt"
+          }
+        ]
+      },
+      "ReadingMaterialsReleaseAt": {
+        "type": "object",
+        "properties": {
+          "part2": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-01T23:00:00.000Z"
+          },
+          "part3": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-02T23:00:00.000Z"
+          },
+          "part4": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-11-03T23:00:00.000Z"
+          }
+        }
+      },
+      "ReadingMaterialStatus": {
+        "type": "string",
+        "enum": ["ENGAGED", "READ"]
+      },
+      "ReadingMaterialUpsert": {
+        "type": "object",
+        "properties": {
+          "step": {
+            "type": "string",
+            "example": "1.1"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReadingMaterialStatus"
+          }
+        }
+      },
+      "RefreshToken": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "required": ["refreshToken"]
+      },
+      "Status": {
+        "type": "string",
+        "enum": ["ACTIVE", "INACTIVE"],
+        "example": "ACTIVE"
+      },
+      "Success": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "UpdatedAt": {
+        "type": "object",
+        "properties": {
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2000-01-01T00:00:00.000Z"
+          }
+        }
+      },
+      "User": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 1
+              },
+              "username": {
+                "type": "string",
+                "example": "bct001"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/UserAdminUpdate"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "firstLoginAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/CreatedAt"
+          },
+          {
+            "$ref": "#/components/schemas/UpdatedAt"
+          }
+        ]
+      },
+      "UserAdminGet": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "password": {
+                "type": "string",
+                "example": "Abc123"
+              },
+              "questionnaireCompleted": {
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      },
+      "UserAdminUpdate": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "status": {
+                "$ref": "#/components/schemas/UserStatus"
+              },
+              "treatmentDate": {
+                "type": "string",
+                "format": "date",
+                "example": "2025-11-01"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/UserUpdate"
+          }
+        ]
+      },
+      "UserGetMe": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "questionnaire": {
+                "$ref": "#/components/schemas/Questionnaire"
+              },
+              "readingMaterialsReleaseAt": {
+                "$ref": "#/components/schemas/ReadingMaterialsReleaseAt"
+              },
+              "readingMaterials": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ReadingMaterial"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "UserLogin": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "bct001"
+          },
+          "password": {
+            "type": "string",
+            "example": "Abc123"
+          }
+        },
+        "required": ["username", "password"]
+      },
+      "UserMetricsGet": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UserMetricsList"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "readingMaterialsReleaseAt": {
+                "$ref": "#/components/schemas/ReadingMaterialsReleaseAt"
+              },
+              "readingMaterials": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ReadingMaterial"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "UserMetricsList": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 1
+              },
+              "username": {
+                "type": "string",
+                "example": "bct001"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/UserAdminUpdate"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "questionnaire": {
+                "$ref": "#/components/schemas/Questionnaire"
+              },
+              "questionnaireCompleted": {
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      },
+      "UserUpdate": {
+        "type": "object",
+        "properties": {
+          "treatmentDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2025-11-01"
+          }
+        }
+      },
+      "UserStatus": {
+        "type": "string",
+        "enum": ["ACTIVE", "DISABLED"],
+        "example": "ACTIVE"
+      }
+    },
+    "responses": {},
+    "examples": {}
+  },
+  "paths": {
+    "/api/app/auth/login": {
+      "post": {
+        "tags": ["[App] Auth"],
+        "summary": "Login App",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLogin"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthToken"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid Credential"
+          }
+        }
+      }
+    },
+    "/api/app/auth/token": {
+      "post": {
+        "tags": ["[App] Auth"],
+        "summary": "Refresh access token",
+        "description": "Refresh access token when API response 401 Unauthorized",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshToken"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthToken"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/app/auth/token/revoke": {
+      "post": {
+        "tags": ["[App] Auth"],
+        "summary": "Revoke refresh token to logout",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshToken"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Success"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/app/auth/user": {
+      "get": {
+        "tags": ["[App] Auth"],
+        "summary": "Get current user details",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGetMe"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Incorrect Token"
+          },
+          "404": {
+            "description": "User Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["[App] Auth"],
+        "summary": "Update current user details",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGetMe"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Incorrect Token"
+          },
+          "404": {
+            "description": "User Not Found"
+          }
+        }
+      }
+    },
+    "/api/app/questionnaire": {
+      "get": {
+        "tags": ["[App] Questionnaire"],
+        "summary": "Get my questionnaire",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Questionnaire"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Incorrect Token"
+          },
+          "404": {
+            "description": "Questionnaire Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["[App] Questionnaire"],
+        "summary": "Upsert my questionnaire",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestionnaireUpsert"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Questionnaire"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Incorrect Token"
+          },
+          "404": {
+            "description": "User Not Found"
+          }
+        }
+      }
+    },
+    "/api/app/reading-materials": {
+      "get": {
+        "tags": ["[App] Reading Material"],
+        "summary": "List my reading materials",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ReadingMaterial"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Incorrect Token"
+          }
+        }
+      },
+      "put": {
+        "tags": ["[App] Reading Material"],
+        "summary": "Upsert my reading material",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadingMaterialUpsert"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadingMaterial"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Incorrect Token"
+          },
+          "404": {
+            "description": "User Not Found"
+          }
+        }
+      }
+    }
+  }
+}
