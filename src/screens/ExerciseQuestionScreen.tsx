@@ -12,7 +12,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import Svg, { Path, Circle as SvgCircle } from 'react-native-svg';
+import Svg, {
+  Path,
+  Circle as SvgCircle,
+  Defs,
+  LinearGradient as SvgLinearGradient,
+  Stop,
+  Rect,
+} from 'react-native-svg';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useWording } from '../context/WordingContext';
 import { getQuestionnaire } from '../assets/staticContent/questionnaire';
@@ -21,6 +28,7 @@ import { Option } from '../types/Option';
 
 const icBackPale = require('../assets/images/ic_back_pale.png');
 const icNextPale = require('../assets/images/ic_next_pale.png');
+const icRectangle239 = require('../assets/images/ic_rectangle_239.png');
 
 const SLIDER_TRACK_HEIGHT = 40;
 const THUMB_SIZE = 36;
@@ -36,8 +44,8 @@ const ExerciseQuestionScreen: React.FC = () => {
   const totalQuestions = questions.length;
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<number[]>(
-    () => new Array(totalQuestions).fill(50),
+  const [answers, setAnswers] = useState<number[]>(() =>
+    new Array(totalQuestions).fill(50),
   );
 
   const currentQuestion = questions[currentIndex];
@@ -84,6 +92,7 @@ const ExerciseQuestionScreen: React.FC = () => {
     },
     [sliderTrackWidth, setSliderValue],
   );
+  const totalProgress = questions.length
 
   return (
     <LinearGradient colors={['#FFEEF5', '#FFE8E8']} style={styles.container}>
@@ -91,15 +100,25 @@ const ExerciseQuestionScreen: React.FC = () => {
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerLeft}>
           <View style={styles.progressDots}>
-            {questions.map((_, i) => (
-              <View
-                key={i}
-                style={[
-                  styles.dot,
-                  i <= currentIndex && styles.dotActive,
-                ]}
-              />
-            ))}
+            {Array.from({ length: totalProgress }, (_, index) => {
+              const key = `dot-${index}`;
+              if (index === currentIndex) {
+                return (
+                  <Image
+                    key={key}
+                    source={icRectangle239}
+                    resizeMode="contain"
+                    style={{ width: 24, height: 8 }}
+                  />
+                );
+              }
+              return (
+                <View
+                  key={key}
+                  style={styles.dot}
+                />
+              );
+            })}
           </View>
           <Text style={styles.headerSubtitle}>
             {t('exerciseTitle', '價值觀探索練習')}
@@ -146,9 +165,7 @@ const ExerciseQuestionScreen: React.FC = () => {
               end={{ x: 0, y: 1 }}
               style={styles.promptBar}
             />
-            <Text style={styles.promptText}>
-              {currentQuestion.question}
-            </Text>
+            <Text style={styles.promptText}>{currentQuestion.question}</Text>
           </View>
 
           {/* Slider */}
@@ -181,19 +198,9 @@ const ExerciseQuestionScreen: React.FC = () => {
                 ))}
               </LinearGradient>
               {/* Filled track */}
-              <View
-                style={[
-                  styles.sliderFill,
-                  { width: `${sliderValue}%` },
-                ]}
-              />
+              <View style={[styles.sliderFill, { width: `${sliderValue}%` }]} />
               {/* Thumb */}
-              <View
-                style={[
-                  styles.sliderThumb,
-                  { left: `${sliderValue}%` },
-                ]}
-              >
+              <View style={[styles.sliderThumb, { left: `${sliderValue}%` }]}>
                 <View style={styles.sliderThumbInner} />
               </View>
             </TouchableOpacity>
@@ -216,10 +223,19 @@ const ExerciseQuestionScreen: React.FC = () => {
       </ScrollView>
 
       {/* Bottom navigation */}
-      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 20) }]}>
+      <View
+        style={[
+          styles.bottomBar,
+          { paddingBottom: Math.max(insets.bottom, 20) },
+        ]}
+      >
         <View style={styles.bottomBarInner}>
           {currentIndex > 0 && (
-            <TouchableOpacity onPress={handlePrev} activeOpacity={0.7} style={styles.prevButtonWrap}>
+            <TouchableOpacity
+              onPress={handlePrev}
+              activeOpacity={0.7}
+              style={styles.prevButtonWrap}
+            >
               <View style={styles.prevButton}>
                 <Image
                   source={icBackPale}
@@ -235,7 +251,10 @@ const ExerciseQuestionScreen: React.FC = () => {
           <TouchableOpacity
             onPress={handleNext}
             activeOpacity={0.7}
-            style={[styles.nextButtonWrap, currentIndex === 0 && styles.nextButtonFull]}
+            style={[
+              styles.nextButtonWrap,
+              currentIndex === 0 && styles.nextButtonFull,
+            ]}
           >
             <LinearGradient
               colors={['#FEEAEE', '#FFA7B3']}
@@ -299,10 +318,7 @@ const ComparisonCard: React.FC<ComparisonCardProps> = ({ option }) => {
           <Text style={styles.compDesc}>{option.desc}</Text>
         </View>
       ) : (
-        <Text
-          style={styles.compSimpleTitle}
-          numberOfLines={option.maxLines}
-        >
+        <Text style={styles.compSimpleTitle} numberOfLines={option.maxLines}>
           {option.title}
         </Text>
       )}
@@ -325,7 +341,9 @@ const PieChart: React.FC<{ percentage: number; size?: number }> = ({
   const endX = cx + radius * Math.cos(rad);
   const endY = cy + radius * Math.sin(rad);
 
-  const d = `M${cx},${cy} L${cx},${cy - radius} A${radius},${radius} 0 ${largeArc},1 ${endX},${endY} Z`;
+  const d = `M${cx},${cy} L${cx},${
+    cy - radius
+  } A${radius},${radius} 0 ${largeArc},1 ${endX},${endY} Z`;
 
   return (
     <Svg width={size} height={size}>
@@ -351,16 +369,13 @@ const styles = StyleSheet.create({
   },
   progressDots: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 8,
   },
   dot: {
-    width: 10,
-    height: 10,
+    width: 8,
+    height: 8,
     borderRadius: 5,
-    backgroundColor: 'rgba(158,97,155,0.3)',
-  },
-  dotActive: {
-    backgroundColor: '#6E1E6F',
+    backgroundColor: 'rgba(255, 206, 206, 1)',
   },
   headerSubtitle: {
     fontWeight: '700',

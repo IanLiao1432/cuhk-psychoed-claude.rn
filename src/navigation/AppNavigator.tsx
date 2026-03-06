@@ -93,6 +93,7 @@ const AppNavigator: React.FC = () => {
               component={ExerciseQuestionScreen}
               options={{
                 animation: 'slide_from_right',
+                gestureEnabled: false,
               }}
             />
           </>
