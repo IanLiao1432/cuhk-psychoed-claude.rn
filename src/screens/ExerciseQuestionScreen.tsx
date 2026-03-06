@@ -1,25 +1,19 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
   Image,
+  PanResponder,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
   useWindowDimensions,
+  View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import Svg, {
-  Path,
-  Circle as SvgCircle,
-  Defs,
-  LinearGradient as SvgLinearGradient,
-  Stop,
-  Rect,
-} from 'react-native-svg';
+import Svg, { Circle as SvgCircle, Path } from 'react-native-svg';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useWording } from '../context/WordingContext';
 import { getQuestionnaire } from '../assets/staticContent/questionnaire';
@@ -30,8 +24,8 @@ const icBackPale = require('../assets/images/ic_back_pale.png');
 const icNextPale = require('../assets/images/ic_next_pale.png');
 const icRectangle239 = require('../assets/images/ic_rectangle_239.png');
 
-const SLIDER_TRACK_HEIGHT = 40;
-const THUMB_SIZE = 36;
+const SLIDER_TRACK_HEIGHT = 24;
+const THUMB_SIZE = 32;
 
 const ExerciseQuestionScreen: React.FC = () => {
   const { t } = useWording();
@@ -81,18 +75,39 @@ const ExerciseQuestionScreen: React.FC = () => {
     navigation.goBack();
   }, [navigation]);
 
-  // Slider touch handler
+  // Slider drag handler
   const sliderTrackWidth = screenWidth - 40 - 32 - 32; // screen - scrollPadding - cardPadding
-  const handleSliderPress = useCallback(
-    (evt: { nativeEvent: { locationX: number } }) => {
-      const x = evt.nativeEvent.locationX;
+  const sliderRef = useRef<View>(null);
+  const sliderOriginX = useRef(0);
+
+  const updateSliderFromX = useCallback(
+    (pageX: number) => {
+      const x = pageX - sliderOriginX.current;
       const ratio = Math.max(0, Math.min(1, x / sliderTrackWidth));
       const stepped = Math.round(ratio * 10) * 10;
       setSliderValue(stepped);
     },
     [sliderTrackWidth, setSliderValue],
   );
-  const totalProgress = questions.length
+
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderGrant: evt => {
+          sliderRef.current?.measureInWindow(x => {
+            sliderOriginX.current = x;
+            updateSliderFromX(evt.nativeEvent.pageX);
+          });
+        },
+        onPanResponderMove: evt => {
+          updateSliderFromX(evt.nativeEvent.pageX);
+        },
+      }),
+    [updateSliderFromX],
+  );
+  const totalProgress = questions.length;
 
   return (
     <LinearGradient colors={['#FFEEF5', '#FFE8E8']} style={styles.container}>
@@ -112,12 +127,7 @@ const ExerciseQuestionScreen: React.FC = () => {
                   />
                 );
               }
-              return (
-                <View
-                  key={key}
-                  style={styles.dot}
-                />
-              );
+              return <View key={key} style={styles.dot} />;
             })}
           </View>
           <Text style={styles.headerSubtitle}>
@@ -170,12 +180,21 @@ const ExerciseQuestionScreen: React.FC = () => {
 
           {/* Slider */}
           <View style={styles.sliderContainer}>
-            <Text style={styles.sliderValueText}>{sliderValue}</Text>
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={handleSliderPress}
+            <View
+              ref={sliderRef}
               style={styles.sliderTrackOuter}
+              {...panResponder.panHandlers}
             >
+              {/* Value label above thumb */}
+              <Text
+                style={[
+                  styles.sliderValueText,
+                  { left: `${sliderValue}%`, marginLeft: -20 },
+                ]}
+              >
+                {sliderValue}
+              </Text>
+              {/* Gradient track background */}
               <LinearGradient
                 colors={[
                   'rgba(192,220,255,0.5)',
@@ -186,13 +205,13 @@ const ExerciseQuestionScreen: React.FC = () => {
                 end={{ x: 1, y: 0.5 }}
                 style={styles.sliderTrack}
               >
-                {/* Dot markers */}
+                {/* Dot markers — only visible on unfilled portion */}
                 {Array.from({ length: 11 }).map((_, i) => (
                   <View
                     key={i}
                     style={[
                       styles.sliderDot,
-                      i <= sliderValue / 10 && styles.sliderDotFilled,
+                      i <= sliderValue / 10 && styles.sliderDotHidden,
                     ]}
                   />
                 ))}
@@ -203,7 +222,7 @@ const ExerciseQuestionScreen: React.FC = () => {
               <View style={[styles.sliderThumb, { left: `${sliderValue}%` }]}>
                 <View style={styles.sliderThumbInner} />
               </View>
-            </TouchableOpacity>
+            </View>
             <View style={styles.sliderLabels}>
               <View>
                 <Text style={styles.sliderEndNumber}>0</Text>
@@ -511,25 +530,30 @@ const styles = StyleSheet.create({
   },
   // Slider
   sliderContainer: {
-    gap: 4,
+    gap: 0,
   },
   sliderValueText: {
+    position: 'absolute',
+    top: 0,
+    width: 40,
     fontWeight: '700',
     fontSize: 14,
     color: '#6E1E6F',
     textAlign: 'center',
+    zIndex: 2,
   },
   sliderTrackOuter: {
-    height: SLIDER_TRACK_HEIGHT,
-    justifyContent: 'center',
+    height: THUMB_SIZE + 24,
+    justifyContent: 'flex-end',
+    paddingBottom: 0,
   },
   sliderTrack: {
     height: SLIDER_TRACK_HEIGHT,
-    borderRadius: 20,
+    borderRadius: 40,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
+    paddingHorizontal: 0,
     shadowColor: '#FFCECE',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
@@ -540,40 +564,40 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255,255,255,0.6)',
+    backgroundColor: 'rgba(255,255,255,0.8)',
   },
-  sliderDotFilled: {
-    backgroundColor: 'rgba(255,255,255,0.9)',
+  sliderDotHidden: {
+    opacity: 0,
   },
   sliderFill: {
     position: 'absolute',
     left: 0,
-    top: (SLIDER_TRACK_HEIGHT - 8) / 2,
+    bottom: (SLIDER_TRACK_HEIGHT - 8) / 2,
     height: 8,
     borderRadius: 27,
     backgroundColor: '#6E1E6F',
   },
   sliderThumb: {
     position: 'absolute',
-    top: (SLIDER_TRACK_HEIGHT - THUMB_SIZE) / 2,
+    bottom: (SLIDER_TRACK_HEIGHT - THUMB_SIZE) / 2,
     marginLeft: -THUMB_SIZE / 2,
     width: THUMB_SIZE,
     height: THUMB_SIZE,
     borderRadius: THUMB_SIZE / 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#6E1E6F',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 4,
+    elevation: 6,
   },
   sliderThumbInner: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#6E1E6F',
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.5)',
   },
   sliderLabels: {
     flexDirection: 'row',
