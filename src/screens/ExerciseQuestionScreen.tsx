@@ -19,6 +19,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { useWording } from '../context/WordingContext';
 import { getQuestionnaire } from '../assets/staticContent/questionnaire';
 import CloseIcon from '../components/icons/CloseIcon';
+import BottomSheet from '../components/BottomSheet';
 import { Option } from '../types/Option';
 import { GOOGLE_CLOUD_STORAGE_BUCKET } from '@env';
 
@@ -43,6 +44,7 @@ const ExerciseQuestionScreen: React.FC = () => {
   const [answers, setAnswers] = useState<number[]>(() =>
     new Array(totalQuestions).fill(50),
   );
+  const [showQuitSheet, setShowQuitSheet] = useState(false);
 
   const currentQuestion = questions[currentIndex];
   const sliderValue = answers[currentIndex];
@@ -74,6 +76,11 @@ const ExerciseQuestionScreen: React.FC = () => {
   }, [currentIndex]);
 
   const handleClose = useCallback(() => {
+    setShowQuitSheet(true);
+  }, []);
+
+  const handleConfirmQuit = useCallback(() => {
+    setShowQuitSheet(false);
     navigation.goBack();
   }, [navigation]);
 
@@ -311,6 +318,33 @@ const ExerciseQuestionScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Quit confirmation */}
+      <BottomSheet
+        visible={showQuitSheet}
+        onClose={() => setShowQuitSheet(false)}
+        title={t('exerciseQuitTitle', '確定離開？')}
+      >
+        <Text style={styles.quitMessage}>
+          {t('exerciseQuitDesc1', '若確定離開，你的練習進度將')}
+          <Text style={styles.quitMessageBold}>
+            {t('exerciseQuitDesc2', '不會儲存')}
+          </Text>
+          {t('exerciseQuitDesc3', '。')}
+        </Text>
+        <TouchableOpacity onPress={handleConfirmQuit} activeOpacity={0.7}>
+          <LinearGradient
+            colors={['#FF0000', '#E40E0F']}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={styles.quitButton}
+          >
+            <Text style={styles.quitButtonText}>
+              {t('exerciseQuitConfirm', '確定離開')}
+            </Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </BottomSheet>
     </LinearGradient>
   );
 };
@@ -719,6 +753,28 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 17,
     color: '#6E1E6F',
+  },
+  // Quit confirmation
+  quitMessage: {
+    fontWeight: '400',
+    fontSize: 17,
+    lineHeight: 24,
+    color: '#6E1E6F',
+    marginBottom: 24,
+  },
+  quitMessageBold: {
+    fontWeight: '700',
+  },
+  quitButton: {
+    height: 44,
+    borderRadius: 33,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quitButtonText: {
+    fontWeight: '700',
+    fontSize: 17,
+    color: '#FFFFFF',
   },
 });
 
